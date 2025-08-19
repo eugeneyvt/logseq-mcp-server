@@ -1,0 +1,48 @@
+# Source files
+src/
+tsconfig.json
+
+# Development files
+.env
+.env.example
+.env.local
+*.log
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Example files
+claude-desktop-config.example.json
+
+# Documentation
+docs/
+
+# Test files
+test/
+tests/
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Build artifacts
+*.tsbuildinfo
+
+# Node modules
+node_modules/

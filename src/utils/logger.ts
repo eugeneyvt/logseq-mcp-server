@@ -1,0 +1,75 @@
+import pino from 'pino';
+
+import type { Logger } from 'pino';
+
+/**
+ * Logger configuration interface
+ */
+interface LoggerConfig {
+  level?: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
+  isDevelopment?: boolean;
+  redact?: string[];
+}
+
+/**
+ * Create a structured logger instance
+ */
+export function createLogger(config: LoggerConfig = {}): Logger {
+  const { level = 'info', isDevelopment = false, redact = [] } = config;
+
+  const baseRedact = [
+    // Security: Always redact these fields
+    'apiToken',
+    'token',
+    'password',
+    'secret',
+    'key',
+    'authorization',
+    'cookie',
+    'session',
+    // Add custom redact fields
+    ...redact,
+  ];
+
+  return pino({
+    level,
+    redact: {
+      paths: baseRedact,
+      censor: '[REDACTED]',
+    },
+    timestamp: pino.stdTimeFunctions.isoTime,
+    formatters: {
+      level: (label) => ({ level: label }),
+    },
+    ...(isDevelopment && {
+      transport: {
+        target: 'pino-pretty',
+        options: {
+          colorize: true,
+          ignore: 'pid,hostname',
+          translateTime: 'SYS:standard',
+        },
+      },
+    }),
+  });
+}
+
+/**
+ * Default logger instance
+ */
+export const logger = createLogger({
+  level: (process.env['LOG_LEVEL'] as LoggerConfig['level']) ?? 'info',
+  isDevelopment: process.env['NODE_ENV'] !== 'production',
+});
+
+/**
+ * Log levels for conditional logging
+ */
+export const LOG_LEVELS = {
+  TRACE: 10,
+  DEBUG: 20,
+  INFO: 30,
+  WARN: 40,
+  ERROR: 50,
+  FATAL: 60,
+} as const;

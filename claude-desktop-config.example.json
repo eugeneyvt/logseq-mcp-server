@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "logseq": {
+      "command": "npx",
+      "args": ["logseq-mcp-server"],
+      "env": {
+        "LOGSEQ_API_URL": "http://127.0.0.1:12315",
+        "LOGSEQ_API_TOKEN": "your-api-token-here"
+      }
+    }
+  }
+}
