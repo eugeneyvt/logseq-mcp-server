@@ -21,7 +21,7 @@ export class LogseqClient {
       headers: {
         Authorization: `Bearer ${config.apiToken}`,
         'Content-Type': 'application/json',
-        'User-Agent': 'logseq-mcp-server/1.0.0',
+        'User-Agent': 'logseq-mcp-server/1.0.1',
       },
       timeout: config.timeout,
       validateStatus: (status) => status < 500, // Don't throw on 4xx errors
@@ -324,18 +324,22 @@ export class LogseqClient {
       if (axiosLikeError.code === 'ECONNREFUSED' || axiosLikeError.code === 'ENOTFOUND') {
         return new LogseqConnectionError(
           'Connection refused: Make sure Logseq is running with HTTP API enabled',
-          error
+          error instanceof Error ? error : undefined
         );
       }
 
       if (axiosLikeError.response?.status === 401) {
-        return new LogseqApiError('Unauthorized: Check your API token', 401, error);
+        return new LogseqApiError(
+          'Unauthorized: Check your API token',
+          401,
+          error instanceof Error ? error : undefined
+        );
       }
 
       return new LogseqApiError(
         `HTTP error: ${axiosLikeError.message || 'Unknown error'}`,
         axiosLikeError.response?.status,
-        error
+        error instanceof Error ? error : undefined
       );
     }
 

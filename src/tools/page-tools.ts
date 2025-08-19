@@ -146,7 +146,7 @@ export function createPageTools(client: LogseqClient) {
         };
       }
 
-      const formatBlocks = (blocks: any[], level = 0): string => {
+      const formatBlocks = (blocks: readonly any[], level = 0): string => {
         return blocks
           .map((block) => {
             const indent = '  '.repeat(level);

@@ -149,7 +149,7 @@ export function createQueryTools(client: LogseqClient) {
         for (const page of pagesToSearch) {
           try {
             const blocks = await client.getPageBlocksTree(page.name);
-            const searchInBlocks = (blocks: any[], pageName: string) => {
+            const searchInBlocks = (blocks: readonly any[], pageName: string) => {
               for (const block of blocks) {
                 if (block.content.toLowerCase().includes(query.toLowerCase())) {
                   searchResults.push({

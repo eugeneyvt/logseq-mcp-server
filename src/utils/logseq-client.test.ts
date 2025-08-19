@@ -58,7 +58,7 @@ describe('LogseqClient', () => {
         headers: {
           Authorization: 'Bearer test-token',
           'Content-Type': 'application/json',
-          'User-Agent': 'logseq-mcp-server/1.0.0',
+          'User-Agent': 'logseq-mcp-server/1.0.1',
         },
         timeout: mockConfig.timeout,
         validateStatus: expect.any(Function),
