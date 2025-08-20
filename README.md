@@ -13,7 +13,7 @@ A **production-ready** Model Context Protocol (MCP) server that enables AI assis
 
 - 🚀 **Instant AI Integration** - Connect any MCP-compatible AI to your Logseq graph
 - 🔒 **Privacy First** - All operations are local-only, no data leaves your machine
-- 🎯 **17+ Powerful Tools** - Complete coverage of Logseq operations
+- 🎯 **15+ Core Methods** - Streamlined, efficient tools for all Logseq operations
 - ⚡ **Production Ready** - Built with caching, monitoring, and security
 - 🎨 **Universal Compatibility** - Works with Claude, ChatGPT, and other AI assistants
 
@@ -126,43 +126,60 @@ Then run:
 logseq-mcp-server
 ```
 
-## 🛠️ Available Tools
+## 🛠️ Available Core Methods
 
-### 📝 Page Operations
+### 🌟 Enhanced Core Methods Architecture
 
-| Tool                      | Description                  | Example                                      |
-| ------------------------- | ---------------------------- | -------------------------------------------- |
-| `logseq_list_pages`       | List all pages in your graph | "List all my pages"                          |
-| `logseq_get_page`         | Get page information         | "Get info about 'Project Planning'"          |
-| `logseq_get_page_content` | Get formatted page content   | "Show my daily journal content"              |
-| `logseq_create_page`      | Create new pages             | "Create 'Meeting Notes' with today's agenda" |
-| `logseq_delete_page`      | Delete pages safely          | "Delete the 'Old Draft' page"                |
+This server uses an advanced **core methods + macros** design for maximum efficiency:
 
-### 🧱 Block Management
+- **Minimum API calls** - Smart batching and atomic operations
+- **Maximum precision** - UUID-based operations with strict validation
+- **Context awareness** - Graph structure mapping and intelligent placement
+- **Format validation** - Automatic normalization and error correction
 
-| Tool                        | Description          | Example                                       |
-| --------------------------- | -------------------- | --------------------------------------------- |
-| `logseq_get_block`          | Get block by UUID    | "Get block abc123..."                         |
-| `logseq_create_block`       | Create new blocks    | "Add task 'Buy groceries' to today's journal" |
-| `logseq_update_block`       | Update block content | "Change that block to include priority"       |
-| `logseq_set_block_property` | Set block properties | "Set priority to 'high' for that task"        |
-| `logseq_delete_block`       | Remove blocks        | "Delete that block and its children"          |
+### 📝 System & Page Operations
 
-### 🔍 Search & Query
+| Method                | Description                          | Features                              |
+| --------------------- | ------------------------------------ | ------------------------------------- |
+| `get_system_info`     | Get system and graph status          | Cache status, version info            |
+| `ensure_page`         | Ensure page exists with smart policy | Create/error/skip modes, validation   |
+| `get_page`            | Get page information                 | Cached, with error hints              |
+| `set_page_content`    | Replace entire page content          | Format validation, atomic replacement |
+| `set_page_properties` | Manage page properties efficiently   | Batch upsert/remove operations        |
 
-| Tool                      | Description      | Example                           |
-| ------------------------- | ---------------- | --------------------------------- |
-| `logseq_search`           | Full-text search | "Search for 'machine learning'"   |
-| `logseq_datascript_query` | Advanced queries | "Find all TODO items"             |
-| `logseq_get_backlinks`    | Find references  | "What pages link to 'Project X'?" |
+### 🧱 Block Operations
 
-### 🎯 Context & State
+| Method          | Description                        | Features                                |
+| --------------- | ---------------------------------- | --------------------------------------- |
+| `append_blocks` | Add multiple blocks with precision | Parent/child relationships, positioning |
+| `update_block`  | Update block content by UUID       | Format validation, cache invalidation   |
+| `move_block`    | Move blocks with positioning       | Structural integrity, reference updates |
 
-| Tool                       | Description       | Example                     |
-| -------------------------- | ----------------- | --------------------------- |
-| `logseq_get_current_graph` | Get graph info    | "What graph am I in?"       |
-| `logseq_get_current_page`  | Get open page     | "What page am I viewing?"   |
-| `logseq_get_current_block` | Get focused block | "Which block am I editing?" |
+### 🔍 Search & Context
+
+| Method              | Description                  | Features                           |
+| ------------------- | ---------------------------- | ---------------------------------- |
+| `search`            | Enhanced search with scoping | Pages/blocks/current scope support |
+| `build_graph_map`   | Build graph structure cache  | Auto-refresh, performance metrics  |
+| `suggest_placement` | AI-powered content placement | Intent analysis, confidence scores |
+| `plan_content`      | Dry-run content planning     | Alternative strategies, complexity |
+
+### ⚡ Batch & Macro Operations
+
+| Method                | Description                    | Features                      |
+| --------------------- | ------------------------------ | ----------------------------- |
+| `batch`               | Execute multiple operations    | Atomic transactions, rollback |
+| `upsert_page_outline` | Create structured page layouts | Hierarchical content creation |
+
+### 🎛️ Advanced Control Parameters
+
+All methods support powerful control parameters:
+
+- **`dryRun`** - Preview operations without executing
+- **`strict`** - Enable/disable format validation
+- **`autofixFormat`** - Automatically fix common formatting issues
+- **`idempotencyKey`** - Prevent duplicate operations
+- **`maxOps`** - Limit operation scope for safety
 
 ## 💡 Usage Examples
 
@@ -171,7 +188,7 @@ logseq-mcp-server
 #### **Academic Research**
 
 ```
-"Create a new page called 'AI Research 2024' and add bullet points about:
+"Use ensure_page to create 'AI Research 2025' and then append_blocks with:
 - Machine learning papers I should read
 - Key researchers to follow
 - Conference deadlines
@@ -181,21 +198,25 @@ logseq-mcp-server
 #### **Project Management**
 
 ```
-"Search for all my TODO items that mention 'project deadline' and show their priority.
-Then create a new page called 'Q1 Priorities' with the high-priority items."
+"Use search with scope='blocks' to find TODO items mentioning 'project deadline'.
+Then use batch operations to ensure_page 'Q1 Priorities' and append_blocks
+with the high-priority items in a single atomic transaction."
 ```
 
 #### **Daily Journaling**
 
 ```
-"Add a new entry to today's journal about my morning meeting with the dev team.
-Include the key decisions we made and action items assigned."
+"Use suggest_placement to find the best location for meeting notes,
+then append_blocks to today's journal with structured meeting content:
+decisions made, action items, and next steps."
 ```
 
 #### **Knowledge Synthesis**
 
 ```
-"Find all my notes about React hooks and create a summary page with:
+"First use build_graph_map to understand the knowledge structure,
+then search for React hooks content. Use plan_content to design
+a summary page structure, then execute with batch operations:
 - Common patterns I use
 - Best practices I've learned
 - Examples from my projects

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi, Mock, Mocked } from 'vitest';
 import axios from 'axios';
-import { LogseqClient } from './logseq-client.js';
+import { LogseqClient } from '../logseq-client.js';
 import { LogseqApiError, LogseqConnectionError } from '../errors/index.js';
 import type { Config } from '../schemas/config.js';
 
@@ -58,7 +58,7 @@ describe('LogseqClient', () => {
         headers: {
           Authorization: 'Bearer test-token',
           'Content-Type': 'application/json',
-          'User-Agent': 'logseq-mcp-server/1.0.1',
+          'User-Agent': 'logseq-mcp-server/1.0.2',
         },
         timeout: mockConfig.timeout,
         validateStatus: expect.any(Function),

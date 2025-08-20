@@ -5,6 +5,77 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2025-01-20
+
+### 🚀 Core Methods Architecture - Major Enhancement
+
+#### 🌟 Architecture Transformation
+
+- **Core Methods + Macros Design**: Complete redesign with slim set of powerful methods
+- **Context-Aware Operations**: Added graph structure mapping and intelligent placement
+- **Atomic Operations**: Batch operations with rollback support and idempotency
+- **Format Validation**: Comprehensive Logseq formatting rules with auto-correction
+
+#### 🛠️ New Core Methods
+
+- **System**: `get_system_info()` - Comprehensive system and cache status
+- **Pages**: `ensure_page()`, `get_page()`, `set_page_content()`, `set_page_properties()`
+- **Blocks**: `append_blocks()`, `update_block()`, `move_block()`
+- **Search**: Enhanced `search()` with intelligent scoping
+- **Context**: `build_graph_map()`, `suggest_placement()`, `plan_content()`
+- **Batch**: `batch()`, `upsert_page_outline()` - Macro operations
+
+#### 🎛️ Advanced Control Parameters
+
+- **`dryRun`**: Preview operations without executing
+- **`strict`**: Enable/disable format validation
+- **`autofixFormat`**: Automatic formatting correction
+- **`idempotencyKey`**: Prevent duplicate operations
+- **`maxOps`**: Operation limits for safety
+
+#### 🧠 Context-Aware Features
+
+- **Graph Mapping**: Automatic graph structure analysis on startup
+- **Smart Placement**: AI-powered content placement suggestions with confidence scores
+- **Content Planning**: Dry-run planning with alternatives and complexity analysis
+- **Intent Analysis**: Semantic matching for optimal content organization
+
+#### 📋 Formatting & Validation
+
+- **Strict TODO Markers**: `TODO`, `DOING`, `DONE`, `LATER`, `NOW`, `CANCELED`
+- **Page Link Validation**: `[[Page Name]]` format with auto-closing
+- **Property Format**: `key:: value` enforcement
+- **Structural Nesting**: Parent-child relationships instead of raw indentation
+- **Content Normalization**: Automatic formatting correction
+
+#### 🔒 Enhanced Error Handling
+
+- **Standardized Responses**: `{ ok: boolean, data?, error? }` format
+- **Actionable Error Codes**: `NOT_FOUND`, `VALIDATION_ERROR`, `CONFLICT`, `LIMIT_EXCEEDED`, `BAD_QUERY`, `INTERNAL`
+- **Recovery Hints**: Specific guidance for error resolution
+
+#### 🎯 Workflow Automation
+
+- **Session Initialization**: Automatic graph map building on startup
+- **Operation Verification**: Comprehensive response formats with confirmation
+- **Cache Management**: Smart invalidation and performance optimization
+
+#### 📊 Performance & Reliability
+
+- **Intelligent Caching**: Graph maps (5min), pages (5min), blocks (3min)
+- **Atomic Transactions**: All-or-nothing operations with rollback
+- **Connection Management**: Persistent HTTP with automatic retry
+- **Monitoring**: Real-time metrics and performance tracking
+
+#### ✅ Quality Assurance
+
+- **148/148 Tests Passing**: Complete test coverage maintained
+- **Zero Linting Errors**: Clean, maintainable codebase
+- **TypeScript Compliance**: Full type safety and strict mode
+- **Documentation**: Complete API reference and configuration guides
+
+---
+
 ## [1.0.1] - 2025-08-19
 
 ### Documentation & Code Quality Improvements

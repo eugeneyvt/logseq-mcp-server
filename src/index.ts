@@ -5,17 +5,16 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 
 import { createErrorResponse, sanitizeErrorForLogging } from './errors/index.js';
-import { createPageTools } from './handlers/page-handlers.js';
+import { createCoreMethods } from './handlers/core-methods.js';
 import { loadConfig, validateConfigSecurity } from './schemas/config.js';
-import { createBlockTools } from './tools/block-tools.js';
-import { createQueryTools } from './tools/query-tools.js';
-import { LogseqClient } from './utils/logseq-client.js';
+import { LogseqClient } from './logseq-client.js';
 import { logger } from './utils/logger.js';
 
 import type { Config } from './schemas/config.js';
 
 /**
  * Main MCP server class for Logseq integration
+ * Enhanced with core methods + macros design for improved efficiency
  */
 class LogseqMcpServer {
   private readonly server: Server;
@@ -27,7 +26,7 @@ class LogseqMcpServer {
     this.server = new Server(
       {
         name: 'logseq-mcp-server',
-        version: '1.0.1',
+        version: '1.0.2',
       },
       {
         capabilities: {
@@ -42,25 +41,21 @@ class LogseqMcpServer {
   }
 
   /**
-   * Initialize all available tools
+   * Initialize all available tools using core methods design
    */
   private setupTools(): void {
-    logger.debug('Setting up MCP tools');
+    logger.debug('Setting up core methods');
 
-    // Create all tool modules
-    const { tools: pageTools, handlers: pageHandlers } = createPageTools(this.client);
-    const { tools: blockTools, handlers: blockHandlers } = createBlockTools(this.client);
-    const { tools: queryTools, handlers: queryHandlers } = createQueryTools(this.client);
+    // Create core methods (slim set + macros + context-aware extensions)
+    const { tools: coreTools, handlers: coreHandlers } = createCoreMethods(this.client);
 
-    // Combine all tools and handlers
-    this.allTools = [...pageTools, ...blockTools, ...queryTools];
+    // Use only the core methods
+    this.allTools = [...coreTools];
     this.allHandlers = {
-      ...pageHandlers,
-      ...blockHandlers,
-      ...queryHandlers,
+      ...coreHandlers,
     };
 
-    logger.info({ toolCount: this.allTools.length }, 'MCP tools initialized');
+    logger.info({ toolCount: this.allTools.length }, 'Core methods initialized');
   }
 
   /**
@@ -132,11 +127,11 @@ class LogseqMcpServer {
   }
 
   /**
-   * Start the MCP server
+   * Start the MCP server with enhanced workflow automation
    */
   async run(): Promise<void> {
     // Test connection on startup
-    logger.info('Starting Logseq MCP Server...');
+    logger.info('Starting Logseq MCP Server v1.0.2 with enhanced core methods...');
     logger.debug('Testing connection to Logseq...');
 
     const isConnected = await this.client.testConnection();
@@ -147,11 +142,34 @@ class LogseqMcpServer {
       );
     } else {
       logger.info('Successfully connected to Logseq!');
+
+      // On session start, refresh build_graph_map for context awareness
+      logger.info('Building initial graph map...');
+      try {
+        const buildGraphHandler = this.allHandlers['build_graph_map'];
+        if (buildGraphHandler) {
+          await buildGraphHandler({ refresh: true });
+          logger.info('Graph map initialized successfully');
+        }
+      } catch (error) {
+        logger.warn(
+          { error: sanitizeErrorForLogging(error) },
+          'Failed to build initial graph map, will build on first use'
+        );
+      }
     }
 
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
     logger.info('Logseq MCP Server is running and ready to receive requests.');
+    logger.info('Enhanced features active:');
+    logger.info('- Core methods with slim set + macros design');
+    logger.info(
+      '- Context-aware extensions (graph mapping, placement suggestions, content planning)'
+    );
+    logger.info('- Strict formatting validation and normalization');
+    logger.info('- Batch/atomic operations with idempotency controls');
+    logger.info('- Standardized error handling with actionable hints');
   }
 }
 

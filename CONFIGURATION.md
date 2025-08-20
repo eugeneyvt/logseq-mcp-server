@@ -178,16 +178,69 @@ The server provides internal health monitoring:
 [DEBUG] Retrying request (attempt 2/3) after 1000ms delay
 ```
 
+## Core Methods Configuration
+
+### Control Parameters
+
+All core methods support advanced control parameters. Configure default behaviors:
+
+```bash
+# Enable strict formatting validation by default
+LOGSEQ_STRICT_MODE=true
+
+# Auto-fix formatting issues
+LOGSEQ_AUTOFIX_FORMAT=true
+
+# Default operation limits
+LOGSEQ_MAX_OPS=100
+
+# Default dry-run behavior
+LOGSEQ_DEFAULT_DRY_RUN=false
+```
+
+### Context-Aware Features
+
+Configure graph mapping and placement features:
+
+```bash
+# Graph map cache duration (seconds)
+GRAPH_MAP_CACHE_TTL=300
+
+# Placement confidence threshold
+PLACEMENT_CONFIDENCE_THRESHOLD=0.7
+
+# Enable automatic graph mapping on startup
+AUTO_BUILD_GRAPH_MAP=true
+```
+
+### Formatting Validation
+
+Control content validation behavior:
+
+```bash
+# Enforce strict TODO markers
+STRICT_TODO_MARKERS=true
+
+# Validate page link format
+VALIDATE_PAGE_LINKS=true
+
+# Auto-normalize block content
+AUTO_NORMALIZE_CONTENT=true
+
+# Block property validation
+VALIDATE_BLOCK_PROPERTIES=true
+```
+
 ## Security Configuration
 
 ### Input Validation
 
 The server automatically validates and sanitizes:
 
-- Page names and content
-- Block content and properties
-- Search queries and DataScript
-- API tokens and URLs
+- Page names and content with strict formatting rules
+- Block content with TODO marker validation
+- Search queries and DataScript with injection protection
+- API tokens and URLs with format validation
 
 ### Rate Limiting
 

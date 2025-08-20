@@ -1,529 +1,731 @@
-# API Reference
+# Core Methods API Reference
 
-This document provides comprehensive documentation for all available MCP tools in the Logseq MCP Server.
+This document provides comprehensive documentation for all available core methods in the Logseq MCP Server.
 
-## Tool Categories
+The server uses an advanced **core methods + macros** architecture designed for:
 
+- **Minimum API calls** - Smart batching and atomic operations
+- **Maximum precision** - UUID-based operations with strict validation
+- **Context awareness** - Graph structure mapping and intelligent placement
+- **Format validation** - Automatic normalization and error correction
+
+## Method Categories
+
+- [System Information](#system-information)
 - [Page Operations](#page-operations)
 - [Block Operations](#block-operations)
-- [Search & Query Operations](#search--query-operations)
+- [Search & Query](#search--query)
+- [Context-Aware Extensions](#context-aware-extensions)
+- [Batch & Macro Operations](#batch--macro-operations)
+- [Control Parameters](#control-parameters)
 
-## Page Operations
+## System Information
 
-### `logseq_list_pages`
+### `get_system_info`
 
-List all pages in your Logseq graph.
+Get comprehensive system information including Logseq version, graph status, and cache information.
 
 **Parameters:** None
 
-**Returns:** Formatted text with page list
+**Returns:** System status and configuration
 
 **Example Usage:**
 
 ```
-"List all my pages"
-"Show me all the pages in my graph"
-"What pages do I have?"
+"Show me system information"
+"What's the current graph status?"
+"Check cache status"
 ```
 
 **Response Format:**
 
-```
-Found 142 pages:
-
-- Daily Journal
-- Project Planning (journal)
-- Meeting Notes
-- Research Ideas
-...
-```
-
----
-
-### `logseq_get_page`
-
-Get detailed information about a specific page.
-
-**Parameters:**
-
-- `name` (string, required): The name of the page to retrieve
-
-**Returns:** Page metadata including ID, properties, and journal status
-
-**Example Usage:**
-
-```
-"Get information about my 'Project Planning' page"
-"Show me details for the 'Meeting Notes' page"
-```
-
-**Response Format:**
-
-```
-Page: Project Planning
-ID: 123
-Journal: false
-Properties: {
-  "type": "project",
-  "status": "active",
-  "created": "2024-01-15"
+```json
+{
+  "ok": true,
+  "data": {
+    "graph": "My Knowledge Base",
+    "userConfigs": {...},
+    "serverVersion": "1.0.1",
+    "cacheStatus": {
+      "graphMap": true,
+      "graphMapAge": 180000
+    }
+  }
 }
 ```
 
 ---
 
-### `logseq_get_page_content`
+## Page Operations
 
-Get the full content of a page formatted as markdown.
+### `ensure_page`
+
+Ensure a page exists with configurable behavior when the page is absent.
 
 **Parameters:**
 
-- `name` (string, required): The name of the page to get content for
+- `name` (string, required): The name of the page
+- `ifAbsent` (enum, optional): Action when page doesn't exist
+  - `"create"` (default): Create the page
+  - `"error"`: Return error
+  - `"skip"`: Skip operation
+- `control` (object, optional): Control parameters
 
-**Returns:** Full page content with proper markdown formatting and indentation
+**Returns:** Page information or action taken
 
 **Example Usage:**
 
 ```
-"Show me the content of my daily journal"
-"What's in my 'Research Ideas' page?"
+"Ensure page 'Meeting Notes' exists, create if needed"
+"Check if 'Project Alpha' page exists, error if not"
 ```
 
 **Response Format:**
 
-```
-# Daily Journal
-
-- Morning standup meeting
-  - Discussed project timeline
-  - Assigned new tasks
-- Afternoon focus work
-  - Completed feature implementation
-  - Updated documentation
+```json
+{
+  "ok": true,
+  "data": {
+    "action": "page_created",
+    "page": {
+      "id": 123,
+      "name": "Meeting Notes",
+      "journal": false
+    }
+  }
+}
 ```
 
 ---
 
-### `logseq_create_page`
+### `get_page`
 
-Create a new page in your Logseq graph.
+Get detailed information about a specific page.
 
 **Parameters:**
 
-- `name` (string, required): The name of the page to create
-- `content` (string, optional): Initial content for the page
-- `properties` (object, optional): Properties to set on the page
+- `name` (string, required): The name of the page
 
-**Returns:** Success confirmation with page ID
+**Returns:** Page metadata with comprehensive information
 
 **Example Usage:**
 
 ```
-"Create a new page called 'Meeting Notes' with today's agenda"
-"Make a page named 'Book Reviews' with a reading list"
+"Get information about 'Project Planning'"
+"Show details for my daily journal"
 ```
 
 **Response Format:**
 
+```json
+{
+  "ok": true,
+  "data": {
+    "id": 456,
+    "name": "Project Planning",
+    "originalName": "Project Planning",
+    "journal": false,
+    "properties": {
+      "type": "project",
+      "status": "active"
+    }
+  }
+}
 ```
-Successfully created page "Meeting Notes" with ID 456.
-```
-
-**Notes:**
-
-- Will not overwrite existing pages
-- Content is added as the first block if provided
-- Properties are set as page-level metadata
 
 ---
 
-### `logseq_delete_page`
+### `set_page_content`
 
-Delete a page from your Logseq graph.
+Replace the entire content of a page with validation and formatting.
 
 **Parameters:**
 
-- `name` (string, required): The name of the page to delete
+- `name` (string, required): The name of the page
+- `content` (string, required): New content for the page
+- `control` (object, optional): Control parameters including format validation
 
-**Returns:** Success confirmation
+**Returns:** Content replacement confirmation with block information
 
 **Example Usage:**
 
 ```
-"Delete the page 'Old Draft'"
-"Remove the 'Temporary Notes' page"
+"Replace content of 'Daily Standup' with today's agenda"
+"Set page content with strict formatting validation"
 ```
 
 **Response Format:**
 
-```
-Successfully deleted page "Old Draft".
+```json
+{
+  "ok": true,
+  "data": {
+    "action": "content_set",
+    "page": "Daily Standup",
+    "blocksCreated": 5,
+    "blocks": [...]
+  }
+}
 ```
 
-**⚠️ Warning:** This operation is irreversible. The page and all its content will be permanently removed.
+**Features:**
+
+- Automatic format validation and normalization
+- Atomic content replacement
+- Cache invalidation
+- Support for dry-run mode
+
+---
+
+### `set_page_properties`
+
+Efficiently manage page properties with batch upsert and remove operations.
+
+**Parameters:**
+
+- `name` (string, required): The name of the page
+- `upsert` (object, required): Properties to set or update
+- `remove` (array, optional): Property keys to remove
+- `control` (object, optional): Control parameters
+
+**Returns:** Property update confirmation
+
+**Example Usage:**
+
+```
+"Set page properties: type=project, status=active, priority=high"
+"Remove the 'archived' property from the page"
+```
+
+**Response Format:**
+
+```json
+{
+  "ok": true,
+  "data": {
+    "action": "properties_updated",
+    "page": "Project Alpha",
+    "updated": ["type", "status"],
+    "removed": ["archived"]
+  }
+}
+```
+
+---
 
 ## Block Operations
 
-### `logseq_get_block`
+### `append_blocks`
 
-Get a specific block by its UUID.
+Add multiple blocks to a page with precise positioning and parent-child relationships.
 
 **Parameters:**
 
-- `blockId` (string, required): The UUID of the block to retrieve
+- `page` (string, required): Target page name
+- `items` (array, required): Array of block items to append
+  - `content` (string, required): Block content
+  - `parentUuid` (string, optional): Parent block UUID
+  - `position` (number, optional): Position index
+  - `refUuid` (string, optional): Reference block UUID
+  - `properties` (object, optional): Block properties
+- `control` (object, optional): Control parameters
 
-**Returns:** Block content and metadata
+**Returns:** Created blocks information
 
 **Example Usage:**
 
 ```
-"Get block 550e8400-e29b-41d4-a716-446655440000"
-"Show me the block with ID abc123..."
-```
-
----
-
-### `logseq_create_block`
-
-Create a new block under a page or another block.
-
-**Parameters:**
-
-- `parent` (string, required): Parent page name or block UUID
-- `content` (string, required): The content of the new block
-- `properties` (object, optional): Properties to set on the block
-- `sibling` (boolean, optional): Insert as sibling instead of child (default: false)
-
-**Returns:** Created block details
-
-**Example Usage:**
-
-```
-"Add a task 'Buy groceries' to my today's journal"
-"Create a block under 'Project Planning' with meeting notes"
+"Append structured meeting notes with agenda items and action items"
+"Add multiple TODO blocks with different priorities"
 ```
 
 **Response Format:**
 
+```json
+{
+  "ok": true,
+  "data": {
+    "action": "blocks_appended",
+    "page": "Meeting Notes",
+    "blocksCreated": 3,
+    "blocks": [
+      {
+        "id": "uuid-1",
+        "content": "Agenda item 1",
+        "properties": {}
+      }
+    ]
+  }
+}
 ```
-Successfully created block with ID 789 under "Daily Journal".
-```
+
+**Features:**
+
+- Batch block creation in a single operation
+- Precise positioning with parent-child relationships
+- Format validation and normalization
+- Atomic operations with rollback support
 
 ---
 
-### `logseq_update_block`
+### `update_block`
 
-Update the content of an existing block.
+Update block content by UUID with validation and cache management.
 
 **Parameters:**
 
-- `blockId` (string, required): The UUID of the block to update
-- `content` (string, required): The new content for the block
+- `uuid` (string, required): Block UUID
+- `content` (string, required): New block content
+- `control` (object, optional): Control parameters
 
-**Returns:** Success confirmation
+**Returns:** Updated block information
 
 **Example Usage:**
 
 ```
-"Update block abc123 to say 'Meeting postponed to tomorrow'"
-"Change the content of that block to include priority tag"
-```
-
----
-
-### `logseq_set_block_property`
-
-Set a property on a specific block.
-
-**Parameters:**
-
-- `blockId` (string, required): The UUID of the block
-- `key` (string, required): The property key to set
-- `value` (any, required): The value to assign to the property
-
-**Returns:** Success confirmation
-
-**Example Usage:**
-
-```
-"Set the priority property of block abc123 to 'high'"
-"Add a due-date property to that task block"
-```
-
-**Common Properties:**
-
-- `priority`: "high", "medium", "low"
-- `due-date`: ISO date string
-- `status`: "todo", "doing", "done"
-- `tags`: Array of tag strings
-
----
-
-### `logseq_remove_block_property`
-
-Remove a property from a specific block.
-
-**Parameters:**
-
-- `blockId` (string, required): The UUID of the block
-- `key` (string, required): The property key to remove
-
-**Returns:** Success confirmation
-
----
-
-### `logseq_delete_block`
-
-Delete a block and all its children.
-
-**Parameters:**
-
-- `blockId` (string, required): The UUID of the block to delete
-
-**Returns:** Success confirmation
-
-**⚠️ Warning:** This will delete the block and ALL child blocks recursively.
-
-## Search & Query Operations
-
-### `logseq_search`
-
-Search across all pages and blocks in your graph.
-
-**Parameters:**
-
-- `query` (string, required): The search term or phrase
-- `limit` (number, optional): Maximum number of results to return (default: 50)
-
-**Returns:** List of matching pages and blocks with context
-
-**Example Usage:**
-
-```
-"Search for all mentions of 'machine learning'"
-"Find blocks containing 'project deadline'"
-"Look for pages about 'React hooks'"
+"Update block abc-123 with new task description"
+"Change block content with format validation"
 ```
 
 **Response Format:**
 
+```json
+{
+  "ok": true,
+  "data": {
+    "action": "block_updated",
+    "block": {
+      "id": "abc-123",
+      "content": "Updated task description",
+      "page": { "name": "Daily Journal" }
+    }
+  }
+}
 ```
-Found 8 results for "machine learning":
 
-Pages:
-- AI Research Notes
-- Technology Trends 2024
+**Features:**
 
-Blocks:
-- [Daily Journal] Machine learning models are improving rapidly...
-- [Book Notes] The book covers machine learning fundamentals...
-```
+- UUID-based precision operations
+- Content format validation
+- Automatic cache invalidation
+- Support for dry-run previews
 
 ---
 
-### `logseq_datascript_query`
+### `move_block`
 
-Execute advanced DataScript queries for complex graph analysis.
+Move blocks to new parents with positioning and reference management.
 
 **Parameters:**
 
-- `query` (string, required): DataScript query in EDN format
+- `uuid` (string, required): Block UUID to move
+- `newParentUuid` (string, required): New parent block UUID
+- `position` (number, optional): Position under new parent
+- `refUuid` (string, optional): Reference block for positioning
+- `control` (object, optional): Control parameters
 
-**Returns:** Query results in structured format
+**Returns:** Move operation confirmation
 
 **Example Usage:**
 
 ```
-"Find all TODO blocks created this week"
-"Show me pages that link to 'Project Alpha'"
-"Get all blocks with high priority"
-```
-
-**Query Examples:**
-
-#### Find all TODO blocks
-
-```clojure
-[:find (pull ?block [*])
- :where
- [?block :block/marker "TODO"]]
-```
-
-#### Find pages created recently
-
-```clojure
-[:find ?page-name ?created
- :where
- [?page :block/name ?page-name]
- [?page :block/created-at ?created]
- [(> ?created 1640995200000)]]
-```
-
-#### Find blocks with specific properties
-
-```clojure
-[:find (pull ?block [:block/content :block/properties])
- :where
- [?block :block/properties ?props]
- [(get ?props :priority) ?priority]
- [(= ?priority "high")]]
+"Move task block to different project section"
+"Reorganize blocks with specific positioning"
 ```
 
 ---
 
-### `logseq_get_backlinks`
+## Search & Query
 
-Find all pages and blocks that reference a specific page.
+### `search`
+
+Enhanced search with scoping, pagination, and intelligent result ranking.
 
 **Parameters:**
 
-- `pageName` (string, required): The name of the target page
+- `q` (string, required): Search query
+- `scope` (enum, optional): Search scope
+  - `"all"` (default): Search everything
+  - `"pages"`: Search only page names
+  - `"blocks"`: Search only block content
+  - `"current-page"`: Search current page only
+- `cursor` (string, optional): Pagination cursor
+- `limit` (number, optional): Maximum results (default: 50)
 
-**Returns:** List of pages and blocks that link to the target page
+**Returns:** Search results with metadata
 
 **Example Usage:**
 
 ```
-"Show me what pages link to 'Project Alpha'"
-"Find all references to my 'Book Notes' page"
-"What links to the 'Daily Standup' template?"
+"Search for 'machine learning' in all content"
+"Find pages with 'project' in the name"
+"Search current page for 'TODO'"
 ```
 
 **Response Format:**
 
+```json
+{
+  "ok": true,
+  "data": {
+    "query": "machine learning",
+    "scope": "all",
+    "results": [...],
+    "count": 12,
+    "hasMore": false
+  }
+}
 ```
-Found 12 references to "Project Alpha":
 
-Pages linking to "Project Alpha":
-- Team Meeting Notes
-- Q1 Planning
-- Resource Allocation
+**Features:**
 
-Blocks mentioning "Project Alpha":
-- [Daily Journal] Discussed Project Alpha timeline
-- [Weekly Review] Project Alpha is ahead of schedule
+- Intelligent scoping for focused searches
+- DataScript query integration
+- Fallback search mechanisms
+- Performance optimization with result limits
+
+---
+
+## Context-Aware Extensions
+
+### `build_graph_map`
+
+Build or refresh the comprehensive graph structure cache for context-aware operations.
+
+**Parameters:**
+
+- `refresh` (boolean, optional): Force refresh of cached data (default: false)
+
+**Returns:** Graph structure with statistics
+
+**Example Usage:**
+
 ```
+"Build graph map for context awareness"
+"Refresh the graph structure cache"
+```
+
+**Response Format:**
+
+```json
+{
+  "ok": true,
+  "data": {
+    "pages": [
+      {
+        "name": "Project Alpha",
+        "id": 123,
+        "prefixes": ["Projects"],
+        "tags": ["work", "priority"],
+        "journal": false,
+        "lastModified": 1640995200000
+      }
+    ],
+    "generatedAt": 1640995200000,
+    "stats": {
+      "totalPages": 142,
+      "journalPages": 30,
+      "taggedPages": 85
+    }
+  }
+}
+```
+
+**Features:**
+
+- Automatic session initialization
+- Performance metrics tracking
+- Intelligent caching (5-minute TTL)
+- Page organization analysis
+
+---
+
+### `suggest_placement`
+
+AI-powered content placement suggestions based on intent analysis and graph structure.
+
+**Parameters:**
+
+- `intent` (string, required): Purpose or intent of the content
+- `title` (string, required): Content title
+- `keywords` (array, optional): Keywords for matching
+- `preferBranch` (string, optional): Preferred page branch/namespace
+- `control` (object, optional): Control parameters
+
+**Returns:** Placement suggestions with confidence scores
+
+**Example Usage:**
+
+```
+"Suggest where to place meeting notes about project review"
+"Find best location for technical documentation"
+```
+
+**Response Format:**
+
+```json
+{
+  "ok": true,
+  "data": {
+    "suggestedPage": "Project Reviews",
+    "confidence": 0.85,
+    "reasoning": "Best match based on: title similarity, keyword match: project",
+    "alternatives": [
+      {
+        "page": "Meeting Notes",
+        "confidence": 0.72,
+        "reason": "content type match"
+      }
+    ]
+  }
+}
+```
+
+**Features:**
+
+- Intent analysis and semantic matching
+- Confidence scoring for reliability
+- Alternative suggestions
+- Branch preference support
+
+---
+
+### `plan_content`
+
+Create dry-run content plans with multiple strategies and complexity analysis.
+
+**Parameters:**
+
+- `title` (string, required): Content title
+- `outline` (array, optional): Content outline
+- `intent` (string, optional): Content purpose
+- `control` (object, optional): Control parameters
+
+**Returns:** Content creation plan with alternatives
+
+**Example Usage:**
+
+```
+"Plan content structure for quarterly review"
+"Create implementation plan for new feature documentation"
+```
+
+---
+
+## Batch & Macro Operations
+
+### `batch`
+
+Execute multiple operations atomically with rollback support and comprehensive error handling.
+
+**Parameters:**
+
+- `ops` (array, required): Operations to execute
+  - `type` (string): Operation type
+  - `params` (object): Operation parameters
+  - `id` (string, optional): Operation ID for referencing
+- `atomic` (boolean, optional): Execute atomically (default: true)
+- `control` (object, optional): Control parameters
+
+**Returns:** Batch execution results
+
+**Example Usage:**
+
+```
+"Execute page creation and content addition atomically"
+"Batch multiple block updates with rollback support"
+```
+
+**Response Format:**
+
+```json
+{
+  "ok": true,
+  "data": {
+    "action": "batch_executed",
+    "success": true,
+    "totalOps": 3,
+    "completedOps": 3,
+    "errors": 0,
+    "results": [...]
+  }
+}
+```
+
+**Features:**
+
+- Atomic transaction support
+- Individual operation tracking
+- Automatic rollback on failure
+- Idempotency key support
+
+---
+
+### `upsert_page_outline`
+
+Create or update page outlines with hierarchical structure in a single operation.
+
+**Parameters:**
+
+- `name` (string, required): Page name
+- `outline` (array, required): Outline items
+- `replace` (boolean, optional): Replace existing content (default: false)
+- `control` (object, optional): Control parameters
+
+**Returns:** Outline creation results
+
+**Example Usage:**
+
+```
+"Create structured page outline for project documentation"
+"Update page with hierarchical content structure"
+```
+
+---
+
+## Control Parameters
+
+All core methods support advanced control parameters for fine-tuned behavior:
+
+### Standard Control Parameters
+
+```json
+{
+  "control": {
+    "dryRun": false,
+    "strict": true,
+    "idempotencyKey": "unique-key",
+    "maxOps": 100,
+    "autofixFormat": true
+  }
+}
+```
+
+**Parameter Details:**
+
+- **`dryRun`** (boolean): Preview operations without executing
+  - `true`: Return what would happen without making changes
+  - `false` (default): Execute the operation
+
+- **`strict`** (boolean): Enable strict validation mode
+  - `true` (default): Enforce format validation and requirements
+  - `false`: Allow more lenient validation
+
+- **`idempotencyKey`** (string): Prevent duplicate operations
+  - Unique identifier for operation deduplication
+  - Same key returns cached result if operation already completed
+
+- **`maxOps`** (number): Limit operation scope
+  - Default: 100
+  - Prevents runaway operations and ensures performance
+
+- **`autofixFormat`** (boolean): Automatic format correction
+  - `true` (default): Automatically fix common formatting issues
+  - `false`: Return validation errors instead
+
+## Formatting Rules
+
+The server enforces strict Logseq formatting standards:
+
+### Block Content Rules
+
+- One block per line starting with `- ` for bullets
+- TODO markers: `TODO`, `DOING`, `DONE`, `LATER`, `NOW`, `CANCELED`
+- Page links: `[[Page Name]]` format with auto-closing
+- Properties: `key:: value` format
+- Nested structure via parent-child relationships, not raw indentation
+
+### Validation Features
+
+- Automatic content normalization
+- Format error detection and correction
+- Link validation and cleanup
+- Property format enforcement
 
 ## Error Handling
 
-All tools implement comprehensive error handling:
-
-### Common Error Types
-
-1. **Validation Errors**
-   - Invalid page names or block IDs
-   - Malformed DataScript queries
-   - Missing required parameters
-
-2. **Connection Errors**
-   - Logseq not running or HTTP API disabled
-   - Network connectivity issues
-   - API endpoint unreachable
-
-3. **Authentication Errors**
-   - Invalid or expired API token
-   - Insufficient permissions
-
-4. **Not Found Errors**
-   - Page or block doesn't exist
-   - Invalid references
+All methods return standardized error responses with actionable hints:
 
 ### Error Response Format
 
+```json
+{
+  "ok": false,
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "Page 'Missing Page' not found",
+    "hint": "Use ensure_page to create the page first"
+  }
+}
 ```
-Error: Page "Non-existent Page" not found.
 
-Please check:
-- Page name spelling and capitalization
-- Page exists in your Logseq graph
-- Logseq is running with HTTP API enabled
-```
+### Standard Error Codes
 
-## Rate Limiting
+- `NOT_FOUND`: Resource doesn't exist
+- `VALIDATION_ERROR`: Input validation failed
+- `CONFLICT`: Operation conflicts with existing state
+- `LIMIT_EXCEEDED`: Operation exceeds configured limits
+- `BAD_QUERY`: Query syntax or logic is invalid
+- `INTERNAL`: Internal server error
 
-To prevent API abuse, the server implements rate limiting:
+## Performance Features
 
-- **Default Limit**: 100 requests per minute per client
-- **Configurable**: Via `RATE_LIMIT_MAX` and `RATE_LIMIT_WINDOW` environment variables
-- **Graceful Handling**: Requests are queued when limits are exceeded
+### Intelligent Caching
 
-## Caching
-
-The server implements intelligent caching for optimal performance:
-
-### Cache Durations
-
-- **Page lists**: 3 minutes
-- **Page content**: 5 minutes
-- **Block content**: 3 minutes
-- **Search results**: 2 minutes (varies by complexity)
-
-### Cache Invalidation
-
-- Automatic invalidation when content is modified
-- Manual cache clearing on server restart
-- TTL-based expiration for all cached data
-
-## Security Features
-
-### Input Validation
-
-All inputs are validated and sanitized:
-
-- Page names checked for invalid characters
-- Block content filtered for potential security issues
-- DataScript queries validated for dangerous patterns
-- API tokens verified for proper format
-
-### Data Privacy
-
-- All operations are local-only (no external data transmission)
-- API tokens automatically redacted from logs
-- Error messages sanitized to prevent information disclosure
-- No sensitive data stored in cache
-
-## Performance Optimization
+- Page listings: 3 minutes
+- Page content: 5 minutes
+- Block content: 3 minutes
+- Graph maps: 5 minutes
 
 ### Connection Management
 
-- Persistent HTTP connections with keep-alive
-- Automatic connection pooling
-- Intelligent retry logic with exponential backoff
-
-### Request Optimization
-
-- Request deduplication for concurrent identical requests
-- Batch processing where possible
-- Memory-efficient data structures
+- Persistent HTTP connections
+- Automatic retry with exponential backoff
+- Connection pooling and reuse
+- Request deduplication
 
 ### Monitoring
 
-Built-in performance monitoring includes:
-
-- Request/response timing
+- Real-time performance metrics
 - Cache hit/miss rates
-- Error rates and types
-- Memory usage and cleanup
+- Operation timing
+- Error rate tracking
+
+## Security & Privacy
+
+### Built-in Protections
+
+- Local-only operations (no external data transmission)
+- Comprehensive input validation and sanitization
+- API token security with automatic redaction
+- Error message sanitization
+
+### Safe Operations
+
+- Dry-run mode for testing
+- Atomic operations with rollback
+- Idempotency protection
+- Operation limits and safeguards
 
 ## Best Practices
 
 ### For Optimal Performance
 
-1. Use specific page names rather than searching when possible
-2. Limit search results for large graphs
-3. Cache frequently accessed content at the application level
-4. Use block IDs for direct block access when available
+1. Use `build_graph_map` at session start
+2. Leverage batch operations for multiple changes
+3. Use UUID-based operations when possible
+4. Enable caching for frequently accessed content
 
 ### For Reliability
 
-1. Implement error handling in your MCP client
-2. Use reasonable timeouts for long-running operations
-3. Monitor connection status and retry on failures
-4. Validate inputs before sending to the server
+1. Always use error handling with proper codes
+2. Implement retry logic for transient failures
+3. Use dry-run mode for testing operations
+4. Monitor operation limits and adjust as needed
 
-### For Security
+### For Content Quality
 
-1. Keep API tokens secure and rotate regularly
-2. Use rate limiting in shared environments
-3. Validate all user inputs before processing
-4. Monitor logs for suspicious activity
+1. Enable `autofixFormat` for automatic corrections
+2. Use `strict` mode for validation
+3. Leverage `suggest_placement` for organization
+4. Use `plan_content` for complex content creation

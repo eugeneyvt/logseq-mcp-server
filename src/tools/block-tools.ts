@@ -1,5 +1,5 @@
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
-import { LogseqClient } from '../utils/logseq-client.js';
+import { LogseqClient } from '../logseq-client.js';
 import {
   BlockIdSchema,
   CreateBlockParamsSchema,

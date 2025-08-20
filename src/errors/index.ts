@@ -89,6 +89,37 @@ export class ConfigurationError extends McpError {
 }
 
 /**
+ * ROADMAP error classes with standardized codes
+ */
+export class NotFoundError extends McpError {
+  constructor(message: string, hint?: string) {
+    super(message, -32004, { hint });
+    this.name = 'NotFoundError';
+  }
+}
+
+export class ConflictError extends McpError {
+  constructor(message: string, hint?: string) {
+    super(message, -32005, { hint });
+    this.name = 'ConflictError';
+  }
+}
+
+export class LimitExceededError extends McpError {
+  constructor(message: string, hint?: string) {
+    super(message, -32006, { hint });
+    this.name = 'LimitExceededError';
+  }
+}
+
+export class BadQueryError extends McpError {
+  constructor(message: string, hint?: string) {
+    super(message, -32007, { hint });
+    this.name = 'BadQueryError';
+  }
+}
+
+/**
  * Helper to create a safe error response
  */
 export function createErrorResponse(error: unknown): {

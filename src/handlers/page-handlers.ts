@@ -3,7 +3,7 @@ import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { ValidationError } from '../errors/index.js';
 import type { CreatePageParams } from '../schemas/logseq.js';
 import { CreatePageParamsSchema, PageNameSchema } from '../schemas/logseq.js';
-import type { LogseqClient } from '../utils/logseq-client.js';
+import type { LogseqClient } from '../logseq-client.js';
 import { logger } from '../utils/logger.js';
 
 /**

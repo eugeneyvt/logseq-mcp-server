@@ -129,3 +129,228 @@ export type RemoveBlockPropertyParams = z.infer<typeof RemoveBlockPropertyParams
 export type SearchParams = z.infer<typeof SearchParamsSchema>;
 export type DataScriptQueryParams = z.infer<typeof DataScriptQueryParamsSchema>;
 export type BacklinksParams = z.infer<typeof BacklinksParamsSchema>;
+
+// ============================================
+// Core Methods Schemas
+// ============================================
+
+/**
+ * Control parameters for operations
+ */
+export const ControlParamsSchema = z
+  .object({
+    dryRun: z.boolean().default(false),
+    strict: z.boolean().default(true),
+    idempotencyKey: z.string().optional(),
+    maxOps: z.number().int().min(1).max(1000).default(100),
+    autofixFormat: z.boolean().default(true),
+  })
+  .optional();
+
+/**
+ * Block item for batch operations
+ */
+export const BlockItemSchema = z.object({
+  content: z.string().min(1).max(10000),
+  parentUuid: z.string().uuid().optional(),
+  position: z.number().int().min(0).optional(),
+  refUuid: z.string().uuid().optional(),
+  properties: z.record(z.string(), z.unknown()).optional(),
+});
+
+/**
+ * Core method schemas
+ */
+export const EnsurePageParamsSchema = z.object({
+  name: PageNameSchema,
+  ifAbsent: z.enum(['create', 'error', 'skip']).default('create'),
+  control: ControlParamsSchema,
+});
+
+export const SetPageContentParamsSchema = z.object({
+  name: PageNameSchema,
+  content: z.string().max(1000000),
+  control: ControlParamsSchema,
+});
+
+export const SetPagePropertiesParamsSchema = z.object({
+  name: PageNameSchema,
+  upsert: z.record(z.string(), z.unknown()),
+  remove: z.array(z.string()).optional(),
+  control: ControlParamsSchema,
+});
+
+export const AppendBlocksParamsSchema = z.object({
+  page: PageNameSchema,
+  items: z.array(BlockItemSchema).min(1).max(100),
+  control: ControlParamsSchema,
+});
+
+export const UpdateBlockParamsSchemaV2 = z.object({
+  uuid: z.string().uuid(),
+  content: z.string().min(1).max(10000),
+  control: ControlParamsSchema,
+});
+
+export const MoveBlockParamsSchema = z.object({
+  uuid: z.string().uuid(),
+  newParentUuid: z.string().uuid(),
+  position: z.number().int().min(0).optional(),
+  refUuid: z.string().uuid().optional(),
+  control: ControlParamsSchema,
+});
+
+export const SearchParamsSchemaV2 = z.object({
+  q: z.string().min(1).max(500),
+  scope: z.enum(['all', 'pages', 'blocks', 'current-page']).default('all'),
+  cursor: z.string().optional(),
+  limit: z.number().int().min(1).max(1000).default(50),
+});
+
+export const UpsertPageOutlineParamsSchema = z.object({
+  name: PageNameSchema,
+  outline: z.array(z.string()).min(1).max(1000),
+  replace: z.boolean().default(false),
+  control: ControlParamsSchema,
+});
+
+/**
+ * Batch operation schema
+ */
+export const BatchOpSchema = z.object({
+  type: z.enum([
+    'ensure_page',
+    'set_page_content',
+    'set_page_properties',
+    'append_blocks',
+    'update_block',
+    'move_block',
+  ]),
+  params: z.unknown(),
+  id: z.string().optional(), // For referencing in other ops
+});
+
+export const BatchParamsSchema = z.object({
+  ops: z.array(BatchOpSchema).min(1).max(100),
+  atomic: z.boolean().default(true),
+  control: ControlParamsSchema,
+});
+
+/**
+ * Context-aware extension schemas
+ */
+export const BuildGraphMapParamsSchema = z.object({
+  refresh: z.boolean().default(false),
+});
+
+export const SuggestPlacementParamsSchema = z.object({
+  intent: z.string().min(1).max(500),
+  title: z.string().min(1).max(200),
+  keywords: z.array(z.string()).max(20).optional(),
+  preferBranch: z.string().optional(),
+  control: ControlParamsSchema,
+});
+
+export const PlanContentParamsSchema = z.object({
+  title: z.string().min(1).max(200),
+  outline: z.array(z.string()).max(100).optional(),
+  intent: z.string().max(1000).optional(),
+  control: ControlParamsSchema,
+});
+
+/**
+ * Standard error codes for ROADMAP
+ */
+export enum ErrorCode {
+  NOT_FOUND = 'NOT_FOUND',
+  VALIDATION_ERROR = 'VALIDATION_ERROR',
+  CONFLICT = 'CONFLICT',
+  LIMIT_EXCEEDED = 'LIMIT_EXCEEDED',
+  BAD_QUERY = 'BAD_QUERY',
+  INTERNAL = 'INTERNAL',
+}
+
+/**
+ * Standard response format
+ */
+export interface StandardResponse<T = unknown> {
+  ok: boolean;
+  data?: T;
+  error?: {
+    code: ErrorCode;
+    message: string;
+    hint?: string;
+  };
+}
+
+/**
+ * Graph map structure
+ */
+export interface GraphMap {
+  pages: Array<{
+    name: string;
+    id: number;
+    prefixes: string[];
+    tags: string[];
+    journal: boolean;
+    lastModified?: number;
+  }>;
+  generatedAt: number;
+  stats: {
+    totalPages: number;
+    journalPages: number;
+    taggedPages: number;
+  };
+}
+
+/**
+ * Placement suggestion
+ */
+export interface PlacementSuggestion {
+  suggestedPage: string;
+  confidence: number; // 0-1
+  reasoning: string;
+  alternatives: Array<{
+    page: string;
+    confidence: number;
+    reason: string;
+  }>;
+}
+
+/**
+ * Content plan
+ */
+export interface ContentPlan {
+  operations: Array<{
+    type: string;
+    target: string;
+    content: string;
+    position?: number;
+  }>;
+  alternatives: Array<{
+    description: string;
+    operations: Array<{
+      type: string;
+      target: string;
+      content: string;
+    }>;
+  }>;
+  estimatedComplexity: 'simple' | 'moderate' | 'complex';
+}
+
+// Type exports for new schemas
+export type ControlParams = z.infer<typeof ControlParamsSchema>;
+export type BlockItem = z.infer<typeof BlockItemSchema>;
+export type EnsurePageParams = z.infer<typeof EnsurePageParamsSchema>;
+export type SetPageContentParams = z.infer<typeof SetPageContentParamsSchema>;
+export type SetPagePropertiesParams = z.infer<typeof SetPagePropertiesParamsSchema>;
+export type AppendBlocksParams = z.infer<typeof AppendBlocksParamsSchema>;
+export type UpdateBlockParamsV2 = z.infer<typeof UpdateBlockParamsSchemaV2>;
+export type MoveBlockParams = z.infer<typeof MoveBlockParamsSchema>;
+export type SearchParamsV2 = z.infer<typeof SearchParamsSchemaV2>;
+export type UpsertPageOutlineParams = z.infer<typeof UpsertPageOutlineParamsSchema>;
+export type BatchOp = z.infer<typeof BatchOpSchema>;
+export type BatchParams = z.infer<typeof BatchParamsSchema>;
+export type BuildGraphMapParams = z.infer<typeof BuildGraphMapParamsSchema>;
+export type SuggestPlacementParams = z.infer<typeof SuggestPlacementParamsSchema>;
+export type PlanContentParams = z.infer<typeof PlanContentParamsSchema>;
