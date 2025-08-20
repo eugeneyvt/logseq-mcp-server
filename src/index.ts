@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { fileURLToPath } from 'url';
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
@@ -19,7 +20,7 @@ import type { Config } from './schemas/config.js';
 class LogseqMcpServer {
   private readonly server: Server;
   private readonly client: LogseqClient;
-  private allTools: any[] = [];
+  private allTools: Array<import('@modelcontextprotocol/sdk/types.js').Tool> = [];
   private allHandlers: Record<string, (args: unknown) => Promise<unknown>> = {};
 
   constructor(config: Config) {
@@ -87,7 +88,7 @@ class LogseqMcpServer {
         const result = await handler(args ?? {});
 
         logger.info({ toolName: name }, 'Tool call completed successfully');
-        return result as any;
+        return result as { content: Array<{ type: string; text: string }> };
       } catch (error) {
         logger.error(
           {
@@ -128,6 +129,7 @@ class LogseqMcpServer {
 
   /**
    * Start the MCP server with enhanced workflow automation
+   * Note: All logs go to stderr to keep stdout clean for JSON-RPC protocol
    */
   async run(): Promise<void> {
     // Test connection on startup

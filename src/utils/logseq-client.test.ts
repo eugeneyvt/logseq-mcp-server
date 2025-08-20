@@ -11,12 +11,16 @@ const mockedAxios = axios as Mocked<typeof axios>;
 // Mock cache and monitoring
 vi.mock('./cache.js', () => ({
   pageCache: {
-    getOrSet: vi.fn((key, fetcher) => fetcher()),
+    get: vi.fn(),
+    set: vi.fn(),
     delete: vi.fn(),
+    getOrSet: vi.fn((key, fetcher) => fetcher()),
   },
   blockCache: {
-    getOrSet: vi.fn((key, fetcher) => fetcher()),
+    get: vi.fn(),
+    set: vi.fn(),
     delete: vi.fn(),
+    getOrSet: vi.fn((key, fetcher) => fetcher()),
   },
 }));
 

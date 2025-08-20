@@ -31,27 +31,31 @@ export function createLogger(config: LoggerConfig = {}): Logger {
     ...redact,
   ];
 
-  return pino({
-    level,
-    redact: {
-      paths: baseRedact,
-      censor: '[REDACTED]',
-    },
-    timestamp: pino.stdTimeFunctions.isoTime,
-    formatters: {
-      level: (label) => ({ level: label }),
-    },
-    ...(isDevelopment && {
-      transport: {
-        target: 'pino-pretty',
-        options: {
-          colorize: true,
-          ignore: 'pid,hostname',
-          translateTime: 'SYS:standard',
-        },
+  return pino(
+    {
+      level,
+      redact: {
+        paths: baseRedact,
+        censor: '[REDACTED]',
       },
-    }),
-  });
+      timestamp: pino.stdTimeFunctions.isoTime,
+      formatters: {
+        level: (label) => ({ level: label }),
+      },
+      ...(isDevelopment && {
+        transport: {
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
+            ignore: 'pid,hostname',
+            translateTime: 'SYS:standard',
+          },
+        },
+      }),
+    },
+    // IMPORTANT: Write logs to stderr to avoid interfering with JSON-RPC on stdout
+    process.stderr
+  );
 }
 
 /**

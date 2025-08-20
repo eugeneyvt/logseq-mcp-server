@@ -1,6 +1,12 @@
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { LogseqClient } from '../logseq-client.js';
 import { PageNameSchema, CreatePageParamsSchema } from '../schemas/logseq.js';
+import { GetPageToolArgsSchema, CreatePageToolArgsSchema, DeletePageToolArgsSchema } from '../types/tool-arguments.js';
+
+interface LogseqBlockForFormatting {
+  content: string;
+  children?: LogseqBlockForFormatting[];
+}
 
 export function createPageTools(client: LogseqClient) {
   const tools: Tool[] = [
@@ -84,7 +90,7 @@ export function createPageTools(client: LogseqClient) {
       const pageList = pages.map((page) => ({
         name: page.name,
         originalName: page.originalName,
-        journal: page.journal || false,
+        journal: page['journal?'] || false,
         id: page.id,
       }));
 
@@ -102,8 +108,9 @@ export function createPageTools(client: LogseqClient) {
       };
     },
 
-    logseq_get_page: async (args: any) => {
-      const name = PageNameSchema.parse(args.name);
+    logseq_get_page: async (args: unknown) => {
+      const parsed = GetPageToolArgsSchema.parse(args);
+      const name = PageNameSchema.parse(parsed.name);
       const page = await client.getPage(name);
 
       if (!page) {
@@ -124,15 +131,16 @@ export function createPageTools(client: LogseqClient) {
             text:
               `Page: ${page.name}\n` +
               `ID: ${page.id}\n` +
-              `Journal: ${page.journal || false}\n` +
+              `Journal: ${page['journal?'] || false}\n` +
               `Properties: ${JSON.stringify(page.properties || {}, null, 2)}`,
           },
         ],
       };
     },
 
-    logseq_get_page_content: async (args: any) => {
-      const name = PageNameSchema.parse(args.name);
+    logseq_get_page_content: async (args: unknown) => {
+      const parsed = GetPageToolArgsSchema.parse(args);
+      const name = PageNameSchema.parse(parsed.name);
       const blocks = await client.getPageBlocksTree(name);
 
       if (!blocks || blocks.length === 0) {
@@ -146,7 +154,7 @@ export function createPageTools(client: LogseqClient) {
         };
       }
 
-      const formatBlocks = (blocks: readonly any[], level = 0): string => {
+      const formatBlocks = (blocks: readonly LogseqBlockForFormatting[], level = 0): string => {
         return blocks
           .map((block) => {
             const indent = '  '.repeat(level);
@@ -172,8 +180,9 @@ export function createPageTools(client: LogseqClient) {
       };
     },
 
-    logseq_create_page: async (args: any) => {
-      const params = CreatePageParamsSchema.parse(args);
+    logseq_create_page: async (args: unknown) => {
+      const parsed = CreatePageToolArgsSchema.parse(args);
+      const params = CreatePageParamsSchema.parse(parsed);
 
       // Check if page already exists
       const existing = await client.getPage(params.name);
@@ -205,8 +214,9 @@ export function createPageTools(client: LogseqClient) {
       };
     },
 
-    logseq_delete_page: async (args: any) => {
-      const name = PageNameSchema.parse(args.name);
+    logseq_delete_page: async (args: unknown) => {
+      const parsed = DeletePageToolArgsSchema.parse(args);
+      const name = PageNameSchema.parse(parsed.name);
 
       // Check if page exists
       const page = await client.getPage(name);

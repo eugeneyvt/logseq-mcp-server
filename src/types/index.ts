@@ -16,13 +16,13 @@ export interface LogseqPage {
   journal?: boolean;
   createdAt?: number;
   updatedAt?: number;
-  properties?: Record<string, any>;
+  properties?: Record<string, unknown>;
 }
 
 export interface LogseqBlock {
   id: string;
   content: string;
-  properties?: Record<string, any>;
+  properties?: Record<string, unknown>;
   children?: LogseqBlock[];
   page?: { id: number; name: string };
   parent?: { id: string };
@@ -31,7 +31,7 @@ export interface LogseqBlock {
   refs?: Array<{ id: number; name: string }>;
 }
 
-export interface LogseqApiResponse<T = any> {
+export interface LogseqApiResponse<T = unknown> {
   status?: string;
   data?: T;
   error?: string;
@@ -46,13 +46,13 @@ export const DataScriptQuerySchema = z.string().min(1, 'DataScript query cannot 
 export const CreatePageParamsSchema = z.object({
   name: PageNameSchema,
   content: z.string().optional(),
-  properties: z.record(z.any()).optional(),
+  properties: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const CreateBlockParamsSchema = z.object({
   parent: z.string().min(1, 'Parent (page name or block ID) is required'),
   content: z.string().min(1, 'Block content cannot be empty'),
-  properties: z.record(z.any()).optional(),
+  properties: z.record(z.string(), z.unknown()).optional(),
   sibling: z.boolean().optional(),
 });
 
@@ -64,7 +64,13 @@ export const UpdateBlockParamsSchema = z.object({
 export const SetBlockPropertyParamsSchema = z.object({
   blockId: BlockIdSchema,
   key: z.string().min(1, 'Property key cannot be empty'),
-  value: z.any(),
+  value: z.union([
+    z.string(),
+    z.number(),
+    z.boolean(),
+    z.array(z.string()),
+    z.record(z.string(), z.unknown()),
+  ]),
 });
 
 export const RemoveBlockPropertyParamsSchema = z.object({

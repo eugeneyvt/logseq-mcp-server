@@ -59,7 +59,8 @@ describe('Security utilities', () => {
       expect(() => validatePageName('page<test')).toThrow(ValidationError);
       expect(() => validatePageName('page>test')).toThrow(ValidationError);
       expect(() => validatePageName('page:test')).toThrow(ValidationError);
-      expect(() => validatePageName('page/test')).toThrow(ValidationError);
+      // Forward slashes are now supported for nested pages
+      expect(validatePageName('page/test')).toBe('page/test');
       expect(() => validatePageName('page\\test')).toThrow(ValidationError);
       expect(() => validatePageName('page|test')).toThrow(ValidationError);
       expect(() => validatePageName('page?test')).toThrow(ValidationError);

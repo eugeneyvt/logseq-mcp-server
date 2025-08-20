@@ -5,6 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2025-01-20
+
+### 🚀 Enhanced Markdown Parser - Major Architecture Improvement
+
+#### 🌟 Advanced Markdown Processing
+
+- **Enhanced Markdown Parser**: Complete rewrite using mdast-util-from-markdown with comprehensive AST processing
+- **Logseq Syntax Preservation**: Intelligent extraction and preservation of page links, block refs, tags, and properties
+- **Multi-format Support**: Full support for headings, lists, tables, code blocks, blockquotes, images, and more
+- **Nested Structure Handling**: Proper parent-child relationships and hierarchy management
+- **Task List Support**: Native support for Logseq task lists with checkbox states
+
+#### 🔧 Block Operations Enhancement
+
+- **`append_blocks` Overhaul**: Replaced basic regex parsing with enhanced markdown parser
+- **Consistent Block Creation**: Now uses the same `createBlocksFromParsed` utility as `set_page_content`
+- **Improved Result Reporting**: Enhanced response format with detailed parsing and creation summaries
+- **Better Error Handling**: More informative error messages and validation results
+
+#### 🎯 Content Processing Features
+
+- **Smart Content Parsing**: Automatic detection of content types and appropriate handling
+- **Format Validation**: Comprehensive validation with automatic correction capabilities
+- **Logseq Syntax Extraction**: Automatic detection of `[[page links]]`, `((block refs))`, `#tags`, and `key:: value` properties
+- **HTML Sanitization**: Built-in protection against malicious content with configurable settings
+
+#### 🏗️ Technical Improvements
+
+- **Type Safety**: Replaced all `any` types with proper TypeScript types and interfaces
+- **Code Quality**: Fixed all 42 linting errors for clean, maintainable codebase
+- **Performance**: Optimized parsing algorithms and memory management
+- **Modular Architecture**: Clean separation of concerns between parsing, validation, and block creation
+
+#### 📊 Enhanced Response Format
+
+- **Detailed Results**: Each block creation includes type, level, success status, and parsed content
+- **Summary Statistics**: Comprehensive overview of parsing and creation process
+- **Better Logging**: Improved logging with structured data and performance metrics
+- **Consistent API**: Unified response format across all block operations
+
+#### ✅ Quality Assurance
+
+- **Zero Linting Errors**: All ESLint rules now pass
+- **Type Safety**: Full TypeScript compliance with strict mode
+- **Test Coverage**: All existing tests pass with enhanced functionality
+- **Documentation**: Updated API documentation reflecting new capabilities
+
+---
+
 ## [1.0.2] - 2025-01-20
 
 ### 🚀 Core Methods Architecture - Major Enhancement

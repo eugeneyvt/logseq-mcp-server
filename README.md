@@ -6,6 +6,7 @@
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
 [![MCP](https://img.shields.io/badge/MCP-Protocol-orange.svg)](https://modelcontextprotocol.io/)
+[![Version](https://img.shields.io/badge/version-1.0.3-blue.svg)](https://github.com/eugeneyvt/logseq-ai/releases)
 
 A **production-ready** Model Context Protocol (MCP) server that enables AI assistants to seamlessly interact with your Logseq knowledge base. This server acts as a bridge between AI agents and Logseq graphs, providing comprehensive access to read, create, update, and manage your notes with enterprise-grade reliability, security, and performance.
 
@@ -16,6 +17,7 @@ A **production-ready** Model Context Protocol (MCP) server that enables AI assis
 - 🎯 **15+ Core Methods** - Streamlined, efficient tools for all Logseq operations
 - ⚡ **Production Ready** - Built with caching, monitoring, and security
 - 🎨 **Universal Compatibility** - Works with Claude, ChatGPT, and other AI assistants
+- 🧠 **Advanced Markdown Parser** - Comprehensive content processing with Logseq syntax preservation
 
 ## 🎯 Target Audience
 
@@ -128,7 +130,7 @@ logseq-mcp-server
 
 ## 🛠️ Available Core Methods
 
-### 🌟 Enhanced Core Methods Architecture
+### 🌟 Core Methods Architecture
 
 This server uses an advanced **core methods + macros** design for maximum efficiency:
 
@@ -136,6 +138,7 @@ This server uses an advanced **core methods + macros** design for maximum effici
 - **Maximum precision** - UUID-based operations with strict validation
 - **Context awareness** - Graph structure mapping and intelligent placement
 - **Format validation** - Automatic normalization and error correction
+- **Advanced parsing** - Comprehensive markdown parser with Logseq syntax preservation
 
 ### 📝 System & Page Operations
 
@@ -144,14 +147,15 @@ This server uses an advanced **core methods + macros** design for maximum effici
 | `get_system_info`     | Get system and graph status          | Cache status, version info            |
 | `ensure_page`         | Ensure page exists with smart policy | Create/error/skip modes, validation   |
 | `get_page`            | Get page information                 | Cached, with error hints              |
-| `set_page_content`    | Replace entire page content          | Format validation, atomic replacement |
+| `set_page_content`    | Replace entire page content          | Comprehensive markdown parser, atomic replacement |
 | `set_page_properties` | Manage page properties efficiently   | Batch upsert/remove operations        |
 
 ### 🧱 Block Operations
 
 | Method          | Description                        | Features                                |
 | --------------- | ---------------------------------- | --------------------------------------- |
-| `append_blocks` | Add multiple blocks with precision | Parent/child relationships, positioning |
+| `append_blocks` | Add multiple blocks with precision | **Comprehensive markdown parser**, parent/child relationships, positioning |
+| `ensure_page` | Create nested pages with hierarchy | Supports "Parent/Child/Subchild" structure |
 | `update_block`  | Update block content by UUID       | Format validation, cache invalidation   |
 | `move_block`    | Move blocks with positioning       | Structural integrity, reference updates |
 
@@ -159,7 +163,7 @@ This server uses an advanced **core methods + macros** design for maximum effici
 
 | Method              | Description                  | Features                           |
 | ------------------- | ---------------------------- | ---------------------------------- |
-| `search`            | Enhanced search with scoping | Pages/blocks/current scope support |
+| `search`            | Enhanced search with intelligent wildcard handling | Supports "*" for all pages, "empty" for empty pages, normal text search |
 | `build_graph_map`   | Build graph structure cache  | Auto-refresh, performance metrics  |
 | `suggest_placement` | AI-powered content placement | Intent analysis, confidence scores |
 | `plan_content`      | Dry-run content planning     | Alternative strategies, complexity |
@@ -181,9 +185,27 @@ All methods support powerful control parameters:
 - **`idempotencyKey`** - Prevent duplicate operations
 - **`maxOps`** - Limit operation scope for safety
 
+### 🚀 Markdown Processing
+
+The server features a **comprehensive markdown parser** that provides:
+
+- **Multi-format Support**: Headings (H1-H6), lists, tables, code blocks, blockquotes, images, thematic breaks
+- **Logseq Syntax Preservation**: Automatic detection and preservation of `[[page links]]`, `((block refs))`, `#tags`, and `key:: value` properties
+- **Smart Content Parsing**: Intelligent content type detection with appropriate handling
+- **Nested Structure Management**: Proper parent-child relationships and hierarchy
+- **Task List Support**: Native support for Logseq task lists with checkbox states
+- **HTML Sanitization**: Built-in protection against malicious content
+
 ## 💡 Usage Examples
 
 ### 🎯 Real-World Scenarios
+
+#### **Nested Page Creation**
+```
+"Create a nested project structure: Projects/Web Development/Frontend/React"
+"Organize research into: Research/AI/Neural Networks/Deep Learning"
+"Set up work hierarchy: Work/Meetings/2025/Q1/Weekly Standups"
+```
 
 #### **Academic Research**
 
@@ -221,6 +243,16 @@ a summary page structure, then execute with batch operations:
 - Best practices I've learned
 - Examples from my projects
 - Links to the original notes"
+```
+
+#### **Content Cleanup**
+
+```
+"Find all empty pages that need content or cleanup:
+- Use find_empty_pages to identify pages with no content
+- Filter out journal pages if not needed
+- Get detailed analysis of why pages are empty
+- Prioritize cleanup based on page importance"
 ```
 
 ### 🔍 Advanced DataScript Queries
@@ -355,11 +387,26 @@ npm run build
 ```
 src/
 ├── index.ts              # Main server entry point
-├── errors/               # Error handling and definitions
+├── handlers/             # Request handlers and core methods
+│   ├── block-handlers.ts # Block operations (append_blocks, update_block, move_block)
+│   ├── page-handlers.ts  # Page operations (ensure_page, get_page, set_page_content)
+│   ├── graph-handlers.ts # Graph operations (search, build_graph_map, suggest_placement)
+│   ├── search-handlers.ts # Search and query operations
+│   ├── system-handlers.ts # System information and health checks
+│   └── core-methods.ts   # Core MCP method definitions
+├── utils/                # Core utilities and helpers
+│   ├── markdown-parser.ts # Enhanced markdown parser with Logseq syntax support
+│   ├── block-creator.ts  # Block creation utilities with hierarchy management
+│   ├── formatting/       # Content formatting and validation
+│   ├── security/         # Security utilities and input validation
+│   ├── monitoring/       # Performance monitoring and metrics
+│   ├── cache.ts          # Intelligent caching system
+│   └── logger.ts         # Structured logging with sensitive data redaction
 ├── schemas/              # Schema definitions and validation
 ├── tools/                # MCP tool implementations
-├── utils/                # Core utilities
-└── types/                # TypeScript type definitions
+├── client/               # Logseq API client with connection management
+├── types/                # TypeScript type definitions
+└── errors/               # Error handling and definitions
 ```
 
 ### 🧪 Testing

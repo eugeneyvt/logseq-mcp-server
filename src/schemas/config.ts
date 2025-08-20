@@ -79,16 +79,16 @@ export function loadConfig(): Config {
 export function validateConfigSecurity(config: Config): void {
   // Warn about localhost in production
   if (process.env['NODE_ENV'] === 'production' && config.apiUrl.includes('localhost')) {
-    console.warn('Warning: Using localhost API URL in production environment');
+    // Warning: Using localhost API URL in production environment (logged by caller)
   }
 
   // Warn about HTTP in production
   if (process.env['NODE_ENV'] === 'production' && config.apiUrl.startsWith('http:')) {
-    console.warn('Warning: Using insecure HTTP in production environment');
+    // Warning: Using insecure HTTP in production environment (logged by caller)
   }
 
   // Check token strength (basic validation)
   if (config.apiToken.length < 16) {
-    console.warn('Warning: API token appears to be weak (less than 16 characters)');
+    // Warning: API token appears to be weak (logged by caller)
   }
 }

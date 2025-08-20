@@ -8,6 +8,121 @@ The server uses an advanced **core methods + macros** architecture designed for:
 - **Maximum precision** - UUID-based operations with strict validation
 - **Context awareness** - Graph structure mapping and intelligent placement
 - **Format validation** - Automatic normalization and error correction
+- **Advanced parsing** - Enhanced markdown parser with Logseq syntax preservation
+
+## 🚀 Markdown Processing
+
+The server features a **comprehensive markdown parser** that provides advanced content processing capabilities.
+
+### Supported Content Types
+
+#### 📝 Text & Formatting
+- **Headings**: H1-H6 with proper hierarchy and level detection
+- **Paragraphs**: Regular text with inline formatting support
+- **Emphasis**: *italic*, **bold**, ~~strikethrough~~ formatting
+- **Inline Code**: `code snippets` with proper escaping
+- **Links**: [text](url) with title support
+- **Images**: ![alt](url) with metadata extraction
+
+#### 📋 Lists & Tasks
+- **Unordered Lists**: - item with automatic nesting detection
+- **Ordered Lists**: 1. item with proper numbering
+- **Task Lists**: - [ ] TODO, - [x] DONE with checkbox states
+- **Nested Lists**: Automatic depth detection and hierarchy management
+
+#### 🗂️ Structured Content
+- **Tables**: Full table support with headers and cell content
+- **Code Blocks**: ```language\ncode``` with language detection
+- **Blockquotes**: > quoted content with proper formatting
+- **Thematic Breaks**: --- horizontal rules
+- **Math**: $$ math expressions $$ and inline $math$
+
+### Logseq Syntax Preservation
+
+The parser automatically detects and preserves Logseq-specific syntax:
+
+#### 🔗 Page Links
+```markdown
+[[Page Name]] → Automatically detected and preserved
+[[Page Name|Display Text]] → Link with custom display text
+```
+
+#### 📎 Block References
+```markdown
+((block-uuid)) → Block reference preservation
+((block-uuid "custom text")) → Reference with custom text
+```
+
+#### 🏷️ Tags
+```markdown
+#tag → Automatic tag detection and preservation
+#multi-word-tag → Multi-word tag support
+```
+
+#### ⚙️ Properties
+```markdown
+key:: value → Property extraction and preservation
+status:: active → Metadata preservation
+priority:: high → Structured data handling
+```
+
+### Smart Content Processing
+
+#### 🧠 Intelligent Detection
+- **Content Type Recognition**: Automatic detection of content types
+- **Structure Analysis**: Proper parent-child relationship mapping
+- **Format Validation**: Comprehensive validation with auto-correction
+- **Nesting Management**: Intelligent handling of nested structures
+
+#### 🔧 Automatic Corrections
+- **Format Normalization**: Consistent formatting across content
+- **Link Validation**: Automatic link format correction
+- **Property Formatting**: Standardized property syntax
+- **Content Cleanup**: Removal of excessive whitespace and formatting
+
+#### 📊 Response Format
+
+All parsing operations return detailed information:
+
+```json
+{
+  "results": [
+    {
+      "success": true,
+      "block": { "id": "uuid", "content": "parsed content" },
+      "type": "heading",
+      "level": 1,
+      "parsedContent": "actual content used"
+    }
+  ],
+  "summary": {
+    "originalItems": 3,
+    "parsedBlocks": 3,
+    "createdBlocks": 3,
+    "successfulBlocks": 3
+  }
+}
+```
+
+### Configuration Options
+
+The parser supports configurable behavior:
+
+```typescript
+interface ParseConfig {
+  allowHtml?: boolean;           // Enable HTML content
+  preserveLogseqSyntax?: boolean; // Preserve Logseq-specific syntax
+  sanitizeHtml?: boolean;        // Sanitize potentially dangerous HTML
+  maxNestingLevel?: number;      // Maximum nesting depth (default: 10)
+}
+```
+
+### Performance Features
+
+- **AST-based Parsing**: Fast, efficient content processing
+- **Memory Optimization**: Efficient memory usage for large documents
+- **Caching**: Intelligent caching of parsed results
+- **Batch Processing**: Efficient handling of multiple content items
 
 ## Method Categories
 
@@ -137,21 +252,22 @@ Get detailed information about a specific page.
 
 ### `set_page_content`
 
-Replace the entire content of a page with validation and formatting.
+Replace the entire content of a page with **comprehensive markdown parsing** and validation.
 
 **Parameters:**
 
 - `name` (string, required): The name of the page
-- `content` (string, required): New content for the page
+- `content` (string, required): New content for the page in markdown format
 - `control` (object, optional): Control parameters including format validation
 
-**Returns:** Content replacement confirmation with block information
+**Returns:** Content replacement confirmation with detailed block information
 
 **Example Usage:**
 
 ```
 "Replace content of 'Daily Standup' with today's agenda"
 "Set page content with strict formatting validation"
+"Create a project page with structured headings and lists"
 ```
 
 **Response Format:**
@@ -162,18 +278,26 @@ Replace the entire content of a page with validation and formatting.
   "data": {
     "action": "content_set",
     "page": "Daily Standup",
+    "blocksCleared": 3,
     "blocksCreated": 5,
-    "blocks": [...]
+    "blocksFailed": 0,
+    "contentLength": 1250,
+    "blockStructure": [
+      { "type": "heading", "success": true, "level": 1 },
+      { "type": "list-item", "success": true, "level": 0 }
+    ]
   }
 }
 ```
 
 **Features:**
 
-- Automatic format validation and normalization
-- Atomic content replacement
-- Cache invalidation
-- Support for dry-run mode
+- **Advanced Markdown Parsing**: Comprehensive parsing with Logseq syntax preservation
+- **Smart Content Structure**: Automatic detection and handling of headings, lists, tables, code blocks
+- **Logseq Syntax Support**: Preserves `[[page links]]`, `((block refs))`, `#tags`, and `key:: value` properties
+- **Format Validation**: Automatic normalization and error correction
+- **Atomic Operations**: Complete content replacement with rollback support
+- **Detailed Reporting**: Comprehensive block creation statistics and structure information
 
 ---
 
@@ -217,26 +341,27 @@ Efficiently manage page properties with batch upsert and remove operations.
 
 ### `append_blocks`
 
-Add multiple blocks to a page with precise positioning and parent-child relationships.
+Add multiple blocks to a page with **comprehensive markdown parsing** and precise positioning control.
 
 **Parameters:**
 
 - `page` (string, required): Target page name
 - `items` (array, required): Array of block items to append
-  - `content` (string, required): Block content
+  - `content` (string, required): Block content in markdown format
   - `parentUuid` (string, optional): Parent block UUID
   - `position` (number, optional): Position index
   - `refUuid` (string, optional): Reference block UUID
   - `properties` (object, optional): Block properties
 - `control` (object, optional): Control parameters
 
-**Returns:** Created blocks information
+**Returns:** Enhanced response with detailed parsing and creation information
 
 **Example Usage:**
 
 ```
 "Append structured meeting notes with agenda items and action items"
 "Add multiple TODO blocks with different priorities"
+"Create a project outline with headings and nested lists"
 ```
 
 **Response Format:**
@@ -245,26 +370,34 @@ Add multiple blocks to a page with precise positioning and parent-child relation
 {
   "ok": true,
   "data": {
-    "action": "blocks_appended",
-    "page": "Meeting Notes",
-    "blocksCreated": 3,
-    "blocks": [
+    "results": [
       {
-        "id": "uuid-1",
-        "content": "Agenda item 1",
-        "properties": {}
+        "success": true,
+        "block": { "id": "uuid-1", "content": "Agenda item 1" },
+        "type": "paragraph",
+        "level": 0,
+        "parsedContent": "Agenda item 1"
       }
-    ]
+    ],
+    "summary": {
+      "originalItems": 1,
+      "parsedBlocks": 1,
+      "createdBlocks": 1,
+      "successfulBlocks": 1
+    }
   }
 }
 ```
 
 **Features:**
 
-- Batch block creation in a single operation
-- Precise positioning with parent-child relationships
-- Format validation and normalization
-- Atomic operations with rollback support
+- **Advanced Markdown Parsing**: Uses comprehensive parser with Logseq syntax preservation
+- **Smart Content Detection**: Automatic recognition of headings, lists, tables, code blocks, etc.
+- **Logseq Syntax Support**: Preserves `[[page links]]`, `((block refs))`, `#tags`, and `key:: value` properties
+- **Consistent Block Creation**: Uses the same parsing engine as `set_page_content`
+- **Detailed Results**: Comprehensive response with parsing statistics and block metadata
+- **Format Validation**: Automatic content normalization and error correction
+- **Batch Processing**: Efficient handling of multiple blocks with atomic operations
 
 ---
 
@@ -622,25 +755,6 @@ All core methods support advanced control parameters for fine-tuned behavior:
 - **`autofixFormat`** (boolean): Automatic format correction
   - `true` (default): Automatically fix common formatting issues
   - `false`: Return validation errors instead
-
-## Formatting Rules
-
-The server enforces strict Logseq formatting standards:
-
-### Block Content Rules
-
-- One block per line starting with `- ` for bullets
-- TODO markers: `TODO`, `DOING`, `DONE`, `LATER`, `NOW`, `CANCELED`
-- Page links: `[[Page Name]]` format with auto-closing
-- Properties: `key:: value` format
-- Nested structure via parent-child relationships, not raw indentation
-
-### Validation Features
-
-- Automatic content normalization
-- Format error detection and correction
-- Link validation and cleanup
-- Property format enforcement
 
 ## Error Handling
 
