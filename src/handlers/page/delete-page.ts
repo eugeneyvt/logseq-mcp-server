@@ -7,18 +7,60 @@ import { ErrorCode } from '../../schemas/logseq.js';
 
 export async function handleDeletePage(client: LogseqClient, args: unknown): Promise<ToolResult> {
   try {
-    const params = args as { name: string; control?: { dryRun?: boolean } };
+    const params = args as {
+      name: string;
+      confirmDestroy?: boolean;
+      control?: {
+        dryRun?: boolean;
+        backupBefore?: boolean;
+      };
+    };
     const pageName = PageNameSchema.parse(params.name);
-    
+
+    // Safety check: require explicit confirmation for destructive operations
+    if (!params.confirmDestroy && !params.control?.dryRun) {
+      const response = createErrorResponse(
+        ErrorCode.VALIDATION_ERROR,
+        'Destructive operation requires explicit confirmation',
+        'Set confirmDestroy: true to proceed with page deletion. Use control.dryRun: true to preview the operation first.'
+      );
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: JSON.stringify(response, null, 2),
+          },
+        ],
+      };
+    }
+
     if (params.control?.dryRun) {
+      // Get page info for dry run preview
+      let pageInfo;
+      try {
+        const page = await client.getPage(pageName);
+        const blocks = page ? await client.getPageBlocksTree(pageName) : null;
+        pageInfo = {
+          exists: !!page,
+          blockCount: blocks ? blocks.length : 0,
+          hasContent: !!(blocks && blocks.length > 0),
+        };
+      } catch (error) {
+        pageInfo = { exists: false, blockCount: 0, hasContent: false };
+      }
+
       return {
         content: [
           {
             type: 'text' as const,
             text: JSON.stringify(
               createResponse({
+                dryRun: true,
                 action: 'would_delete_page',
-                page: pageName,
+                pageName,
+                pageInfo,
+                warning: 'This operation will permanently delete the page and all its content',
+                safetyNote: 'Set confirmDestroy: true to proceed with actual deletion',
               }),
               null,
               2
@@ -31,10 +73,10 @@ export async function handleDeletePage(client: LogseqClient, args: unknown): Pro
     // Try to delete the page directly - Logseq API will handle non-existent pages
     try {
       await client.deletePage(pageName);
-      
+
       // Clear cache
       pageCache.delete(pageName);
-      
+
       logger.info({ pageName }, 'Page deleted successfully');
 
       return {
@@ -46,8 +88,8 @@ export async function handleDeletePage(client: LogseqClient, args: unknown): Pro
                 action: 'page_deleted',
                 page: { name: pageName },
               }),
-            null,
-            2
+              null,
+              2
             ),
           },
         ],
@@ -55,7 +97,7 @@ export async function handleDeletePage(client: LogseqClient, args: unknown): Pro
     } catch (deleteError) {
       // If deletion fails, the page might not exist or there might be an issue
       logger.warn({ pageName, error: deleteError }, 'Page deletion failed, page may not exist');
-      
+
       // Still return success since the end goal (page not existing) is achieved
       return {
         content: [
@@ -67,8 +109,8 @@ export async function handleDeletePage(client: LogseqClient, args: unknown): Pro
                 page: { name: pageName },
                 note: 'Page was either deleted or did not exist',
               }),
-            null,
-            2
+              null,
+              2
             ),
           },
         ],

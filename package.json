@@ -1,6 +1,6 @@
 {
   "name": "logseq-ai",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Model Context Protocol server for Logseq - enables AI assistants to interact with your Logseq knowledge base",
   "main": "dist/index.js",
   "type": "module",

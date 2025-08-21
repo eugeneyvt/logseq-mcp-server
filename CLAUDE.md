@@ -6,7 +6,7 @@
 # Development
 npm run dev                 # Start development server
 npm run build              # Build the project
-npm run typecheck          # Run TypeScript type checking
+npm run type-check          # Run TypeScript type checking
 npm run lint               # Run ESLint
 npm run test               # Run test suite
 npm run test:watch         # Run tests in watch mode

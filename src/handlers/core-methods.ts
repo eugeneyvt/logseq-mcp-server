@@ -5,7 +5,9 @@
  * - System operations (get_system_info)
  * - Page operations (ensure_page, get_page, set_page_content, set_page_properties)
  * - Block operations (append_blocks, update_block, move_block)
- * - Search operations (search)
+ * - Search operations (search - with templates, properties, relations, dates)
+ * - Template operations (apply_template - list, apply, validate templates)
+ * - Relation operations (manage_relations - create/remove links, analyze relations)
  * - Graph/Context operations (build_graph_map, suggest_placement, plan_content, batch)
  *
  * Each category is implemented in its own modular file for better maintainability.
@@ -18,6 +20,8 @@ import { createPageHandlers } from './page-handlers.js';
 import { createBlockHandlers } from './block-handlers.js';
 import { createSearchHandlers } from './search-handlers.js';
 import { createGraphHandlers } from './graph-handlers.js';
+import { createTemplateHandlers } from './template-handlers.js';
+import { createRelationHandlers } from './relation-handlers.js';
 import type { ToolResult } from './common.js';
 
 /**
@@ -33,6 +37,8 @@ export function createCoreMethods(client: LogseqClient): {
   const blockModule = createBlockHandlers(client);
   const searchModule = createSearchHandlers(client);
   const graphModule = createGraphHandlers(client);
+  const templateModule = createTemplateHandlers(client);
+  const relationModule = createRelationHandlers(client);
 
   // Combine all tools
   const tools: Tool[] = [
@@ -41,6 +47,8 @@ export function createCoreMethods(client: LogseqClient): {
     ...blockModule.tools,
     ...searchModule.tools,
     ...graphModule.tools,
+    ...templateModule.tools,
+    ...relationModule.tools,
   ];
 
   // Combine all handlers
@@ -50,6 +58,8 @@ export function createCoreMethods(client: LogseqClient): {
     ...blockModule.handlers,
     ...searchModule.handlers,
     ...graphModule.handlers,
+    ...templateModule.handlers,
+    ...relationModule.handlers,
   };
 
   return { tools, handlers };

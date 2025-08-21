@@ -17,22 +17,25 @@ The server features a **comprehensive markdown parser** that provides advanced c
 ### Supported Content Types
 
 #### 📝 Text & Formatting
+
 - **Headings**: H1-H6 with proper hierarchy and level detection
 - **Paragraphs**: Regular text with inline formatting support
-- **Emphasis**: *italic*, **bold**, ~~strikethrough~~ formatting
+- **Emphasis**: _italic_, **bold**, ~~strikethrough~~ formatting
 - **Inline Code**: `code snippets` with proper escaping
 - **Links**: [text](url) with title support
 - **Images**: ![alt](url) with metadata extraction
 
 #### 📋 Lists & Tasks
+
 - **Unordered Lists**: - item with automatic nesting detection
 - **Ordered Lists**: 1. item with proper numbering
 - **Task Lists**: - [ ] TODO, - [x] DONE with checkbox states
 - **Nested Lists**: Automatic depth detection and hierarchy management
 
 #### 🗂️ Structured Content
+
 - **Tables**: Full table support with headers and cell content
-- **Code Blocks**: ```language\ncode``` with language detection
+- **Code Blocks**: `language\ncode` with language detection
 - **Blockquotes**: > quoted content with proper formatting
 - **Thematic Breaks**: --- horizontal rules
 - **Math**: $$ math expressions $$ and inline $math$
@@ -42,24 +45,28 @@ The server features a **comprehensive markdown parser** that provides advanced c
 The parser automatically detects and preserves Logseq-specific syntax:
 
 #### 🔗 Page Links
+
 ```markdown
 [[Page Name]] → Automatically detected and preserved
 [[Page Name|Display Text]] → Link with custom display text
 ```
 
 #### 📎 Block References
+
 ```markdown
 ((block-uuid)) → Block reference preservation
 ((block-uuid "custom text")) → Reference with custom text
 ```
 
 #### 🏷️ Tags
+
 ```markdown
 #tag → Automatic tag detection and preservation
 #multi-word-tag → Multi-word tag support
 ```
 
 #### ⚙️ Properties
+
 ```markdown
 key:: value → Property extraction and preservation
 status:: active → Metadata preservation
@@ -69,12 +76,14 @@ priority:: high → Structured data handling
 ### Smart Content Processing
 
 #### 🧠 Intelligent Detection
+
 - **Content Type Recognition**: Automatic detection of content types
 - **Structure Analysis**: Proper parent-child relationship mapping
 - **Format Validation**: Comprehensive validation with auto-correction
 - **Nesting Management**: Intelligent handling of nested structures
 
 #### 🔧 Automatic Corrections
+
 - **Format Normalization**: Consistent formatting across content
 - **Link Validation**: Automatic link format correction
 - **Property Formatting**: Standardized property syntax
@@ -110,10 +119,10 @@ The parser supports configurable behavior:
 
 ```typescript
 interface ParseConfig {
-  allowHtml?: boolean;           // Enable HTML content
+  allowHtml?: boolean; // Enable HTML content
   preserveLogseqSyntax?: boolean; // Preserve Logseq-specific syntax
-  sanitizeHtml?: boolean;        // Sanitize potentially dangerous HTML
-  maxNestingLevel?: number;      // Maximum nesting depth (default: 10)
+  sanitizeHtml?: boolean; // Sanitize potentially dangerous HTML
+  maxNestingLevel?: number; // Maximum nesting depth (default: 10)
 }
 ```
 
@@ -130,6 +139,8 @@ interface ParseConfig {
 - [Page Operations](#page-operations)
 - [Block Operations](#block-operations)
 - [Search & Query](#search--query)
+- [Templates & Variables](#templates--variables)
+- [Relationships & Graph Analysis](#relationships--graph-analysis)
 - [Context-Aware Extensions](#context-aware-extensions)
 - [Batch & Macro Operations](#batch--macro-operations)
 - [Control Parameters](#control-parameters)
@@ -215,19 +226,20 @@ Ensure a page exists with configurable behavior when the page is absent.
 
 ### `get_page`
 
-Get detailed information about a specific page.
+Get detailed information about a specific page including comprehensive relationship data and graph analysis.
 
 **Parameters:**
 
 - `name` (string, required): The name of the page
 
-**Returns:** Page metadata with comprehensive information
+**Returns:** Page metadata with comprehensive information including relationships, backlinks, and graph metrics
 
 **Example Usage:**
 
 ```
 "Get information about 'Project Planning'"
 "Show details for my daily journal"
+"Get comprehensive overview of 'Central Topic' with all relationships"
 ```
 
 **Response Format:**
@@ -243,10 +255,46 @@ Get detailed information about a specific page.
     "properties": {
       "type": "project",
       "status": "active"
+    },
+    "relationships": {
+      "backlinks": [
+        {
+          "pageName": "Meeting Notes",
+          "referenceCount": 3,
+          "lastReferenced": 1640995200000
+        }
+      ],
+      "outgoingLinks": [
+        {
+          "pageName": "Implementation Guide",
+          "linkText": "leads to",
+          "createdAt": 1640995200000
+        }
+      ],
+      "relatedPages": [
+        {
+          "pageName": "Project Overview",
+          "relevanceScore": 0.9,
+          "connectionType": "template"
+        }
+      ]
+    },
+    "graphMetrics": {
+      "centralityScore": 0.7,
+      "connectionCount": 8,
+      "cluster": "project-management"
     }
   }
 }
 ```
+
+**Features:**
+
+- **Comprehensive Page Data**: Complete page information with properties and metadata
+- **Relationship Analysis**: Backlinks, outgoing links, and related pages with relevance scores
+- **Graph Metrics**: Centrality scores, connection counts, and clustering information
+- **Reference Tracking**: Detailed reference counts and last referenced timestamps
+- **AI-Powered Relatedness**: Intelligent suggestions for related content
 
 ---
 
@@ -303,22 +351,24 @@ Replace the entire content of a page with **comprehensive markdown parsing** and
 
 ### `set_page_properties`
 
-Efficiently manage page properties with batch upsert and remove operations.
+Efficiently manage page properties with batch upsert, remove operations, and query mode for property discovery.
 
 **Parameters:**
 
 - `name` (string, required): The name of the page
-- `upsert` (object, required): Properties to set or update
+- `upsert` (object, optional): Properties to set or update (omit for query mode)
 - `remove` (array, optional): Property keys to remove
 - `control` (object, optional): Control parameters
 
-**Returns:** Property update confirmation
+**Returns:** Property update confirmation or current properties (in query mode)
 
 **Example Usage:**
 
 ```
 "Set page properties: type=project, status=active, priority=high"
 "Remove the 'archived' property from the page"
+"Show me all properties for the page 'Project Alpha'"
+"Get current properties without making changes"
 ```
 
 **Response Format:**
@@ -330,10 +380,24 @@ Efficiently manage page properties with batch upsert and remove operations.
     "action": "properties_updated",
     "page": "Project Alpha",
     "updated": ["type", "status"],
-    "removed": ["archived"]
+    "removed": ["archived"],
+    "currentProperties": {
+      "type": "project",
+      "status": "active",
+      "priority": "high",
+      "createdAt": "2024-01-15"
+    }
   }
 }
 ```
+
+**Features:**
+
+- **Query Mode**: Call without parameters to get current properties
+- **Batch Operations**: Upsert and remove properties in single calls
+- **Property Validation**: Type checking and format validation
+- **Fallback Support**: Block-based updates if API fails
+- **Comprehensive Reporting**: Current state and change summary
 
 ---
 
@@ -472,11 +536,11 @@ Move blocks to new parents with positioning and reference management.
 
 ### `search`
 
-Enhanced search with scoping, pagination, and intelligent result ranking.
+Enhanced search with multi-modal discovery, intelligent filtering, and advanced query capabilities.
 
 **Parameters:**
 
-- `q` (string, required): Search query
+- `q` (string, required): Search query with support for multiple query types
 - `scope` (enum, optional): Search scope
   - `"all"` (default): Search everything
   - `"pages"`: Search only page names
@@ -485,7 +549,47 @@ Enhanced search with scoping, pagination, and intelligent result ranking.
 - `cursor` (string, optional): Pagination cursor
 - `limit` (number, optional): Maximum results (default: 50)
 
-**Returns:** Search results with metadata
+**Advanced Query Types:**
+
+#### **Template Discovery**
+
+```
+"templates:*"                    // List all available templates
+"template:\"Meeting Template\""  // Find specific template
+```
+
+#### **Property-Based Search**
+
+```
+"property:status=open"           // Find pages with specific properties
+"properties:page=\"Project Alpha\"" // Get all properties for a page
+```
+
+#### **Relationship Analysis**
+
+```
+"backlinks:\"Important Topic\""  // Find pages that reference this
+"references:\"Research Topic\""   // Find all references and mentions
+```
+
+#### **Date-Based Search**
+
+```
+"date:2024-01-01"               // Specific date
+"date:today"                     // Today's content
+"date:last-week"                 // Last week's content
+"date:last-month"                // Last month's content
+```
+
+#### **Combined Filters**
+
+```
+"property:status=open AND date:last-week"  // Multiple conditions
+"templates:* OR property:type=template"    // OR logic
+"property:priority=high AND NOT archived"  // NOT operator
+```
+
+**Returns:** Search results with metadata and relationship information
 
 **Example Usage:**
 
@@ -493,6 +597,9 @@ Enhanced search with scoping, pagination, and intelligent result ranking.
 "Search for 'machine learning' in all content"
 "Find pages with 'project' in the name"
 "Search current page for 'TODO'"
+"Find all templates in my graph"
+"Show me pages with status=open from last week"
+"Find all backlinks to 'Important Concept'"
 ```
 
 **Response Format:**
@@ -503,19 +610,148 @@ Enhanced search with scoping, pagination, and intelligent result ranking.
   "data": {
     "query": "machine learning",
     "scope": "all",
+    "queryType": "text",
     "results": [...],
     "count": 12,
-    "hasMore": false
+    "hasMore": false,
+    "metadata": {
+      "queryType": "text",
+      "filters": [],
+      "dateRange": null
+    }
   }
 }
 ```
 
 **Features:**
 
-- Intelligent scoping for focused searches
+- Multi-modal search (text, templates, properties, relations, dates)
+- Intelligent pattern recognition (`"empty"`, `"*"`, date formats)
+- Combined filter logic with AND/OR/NOT operators
+- Context-aware results with relationship metadata
 - DataScript query integration
 - Fallback search mechanisms
 - Performance optimization with result limits
+
+---
+
+## Templates & Variables
+
+### `apply_template`
+
+Apply templates to pages with variable substitution and multiple application modes.
+
+**Parameters:**
+
+- `templateName` (string, required): Name of the template to apply
+- `targetPage` (string, required): Target page name for template application
+- `variables` (object, optional): Variables for template substitution
+- `mode` (enum, optional): Application mode
+  - `"replace"` (default): Replace entire page content
+  - `"append"`: Add template content to existing content
+  - `"prepend"`: Add template content before existing content
+- `control` (object, optional): Control parameters
+
+**Returns:** Template application results with validation
+
+**Example Usage:**
+
+```
+"Apply 'Meeting Template' to 'Team Standup 2024-01-15'"
+"Use 'Project Template' with variables: projectName='Website Redesign', deadline='March 1st'"
+"Apply 'Daily Review Template' to today's journal in append mode"
+```
+
+**Response Format:**
+
+```json
+{
+  "ok": true,
+  "data": {
+    "templateName": "Meeting Template",
+    "targetPage": "Team Standup 2024-01-15",
+    "mode": "replace",
+    "variables": { "date": "2024-01-15", "team": "Engineering" },
+    "blocksCreated": 15,
+    "placeholders": ["date", "team", "agenda", "actionItems"],
+    "validation": {
+      "success": true,
+      "warnings": [],
+      "errors": []
+    }
+  }
+}
+```
+
+**Features:**
+
+- Automatic template discovery and validation
+- Variable substitution with placeholder detection
+- Multiple application modes (replace/append/prepend)
+- Comprehensive validation and error reporting
+- Template structure analysis and metadata
+
+---
+
+## Relationships & Graph Analysis
+
+### `manage_relations`
+
+Manage page relationships, create bi-directional links, and analyze graph structure.
+
+**Parameters:**
+
+- `operation` (enum, required): Operation type
+  - `"create-link"`: Create bi-directional link between pages
+  - `"remove-link"`: Remove link between pages
+  - `"analyze-relations"`: Analyze relationship structure around a page
+  - `"get-graph-structure"`: Get overall graph connectivity patterns
+- `sourcePage` (string, optional): Source page name (for link operations)
+- `targetPage` (string, optional): Target page name (for link operations)
+- `linkText` (string, optional): Text describing the relationship
+- `control` (object, optional): Control parameters
+
+**Returns:** Relationship operation results with graph analysis
+
+**Example Usage:**
+
+```
+"Create a link between 'Research' and 'Implementation' with text 'leads to'"
+"Remove the link between 'Old Project' and 'Archived Notes'"
+"Analyze relationships around 'Central Topic'"
+"Show me the overall graph structure and most connected pages"
+```
+
+**Response Format:**
+
+```json
+{
+  "ok": true,
+  "data": {
+    "operation": "create-link",
+    "sourcePage": "Research",
+    "targetPage": "Implementation",
+    "linkText": "leads to",
+    "result": {
+      "linksCreated": 2,
+      "biDirectional": true,
+      "graphMetrics": {
+        "sourceConnections": 5,
+        "targetConnections": 3,
+        "centralityScore": 0.8
+      }
+    }
+  }
+}
+```
+
+**Features:**
+
+- Bi-directional link creation and management
+- Graph structure analysis and visualization
+- Page centrality and clustering detection
+- Relationship strength and pattern analysis
+- Automatic reference counting and updates
 
 ---
 
@@ -729,7 +965,8 @@ All core methods support advanced control parameters for fine-tuned behavior:
     "strict": true,
     "idempotencyKey": "unique-key",
     "maxOps": 100,
-    "autofixFormat": true
+    "autofixFormat": true,
+    "confirmDestroy": false
   }
 }
 ```
@@ -755,6 +992,10 @@ All core methods support advanced control parameters for fine-tuned behavior:
 - **`autofixFormat`** (boolean): Automatic format correction
   - `true` (default): Automatically fix common formatting issues
   - `false`: Return validation errors instead
+
+- **`confirmDestroy`** (boolean): Require explicit confirmation for destructive operations
+  - `true`: Require explicit confirmation before deletion/destructive changes
+  - `false` (default): Allow destructive operations without confirmation
 
 ## Error Handling
 

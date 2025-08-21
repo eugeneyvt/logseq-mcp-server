@@ -27,10 +27,37 @@ This guide provides detailed configuration options for the Logseq MCP Server.
 
 ### Security Configuration
 
-| Variable            | Description             | Default | Example  |
-| ------------------- | ----------------------- | ------- | -------- |
-| `RATE_LIMIT_MAX`    | Max requests per window | `100`   | `200`    |
-| `RATE_LIMIT_WINDOW` | Rate limit window (ms)  | `60000` | `120000` |
+| Variable            | Description                              | Default | Example  |
+| ------------------- | ---------------------------------------- | ------- | -------- |
+| `RATE_LIMIT_MAX`    | Max requests per window                  | `100`   | `200`    |
+| `RATE_LIMIT_WINDOW` | Rate limit window (ms)                   | `60000` | `120000` |
+| `CONFIRM_DESTROY`   | Require confirmation for destructive ops | `false` | `true`   |
+
+## New Capabilities
+
+### Template System Configuration
+
+The enhanced template system automatically discovers templates in your Logseq graph:
+
+- **Template Discovery**: Automatically finds pages with template properties or naming patterns
+- **Variable Substitution**: Supports `{{variableName}}` placeholders with automatic validation
+- **Application Modes**: Replace, append, or prepend content with flexible template usage
+
+### Relationship Management
+
+Advanced relationship features for comprehensive knowledge graph management:
+
+- **Bi-Directional Links**: Automatic creation and maintenance of page relationships
+- **Graph Analysis**: Built-in centrality scoring and clustering detection
+- **Reference Tracking**: Comprehensive tracking of page references and backlinks
+
+### Enhanced Search Capabilities
+
+Multi-modal search with intelligent pattern recognition:
+
+- **Query Types**: Templates, properties, relations, dates, and combined filters
+- **Pattern Recognition**: Smart handling of `"empty"`, `"*"`, and date formats
+- **Combined Logic**: AND/OR/NOT operators with proper precedence
 
 ## Configuration Examples
 

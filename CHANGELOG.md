@@ -5,6 +5,74 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] - 2025-01-20
+
+### 🚀 Complete Knowledge Graph Management - Major Feature Enhancement
+
+#### 🌟 Enhanced Search & Discovery
+
+- **Multi-Modal Search**: Enhanced search tool now supports templates, properties, relations, dates, and combined filters
+- **Template Discovery**: `templates:*` lists all available templates, `template:"Meeting Template"` finds specific templates
+- **Property-Based Search**: `property:status=open`, `properties:page="Project Alpha"` for property discovery and filtering
+- **Relationship Analysis**: `backlinks:"Important Topic"`, `references:"Research Topic"` for comprehensive relationship discovery
+- **Date-Based Search**: `date:2024-01-01`, `date:today`, `date:last-week`, `date:last-month` for temporal filtering
+- **Combined Filters**: `property:status=open AND date:last-week`, `templates:* OR property:type=template` with AND/OR/NOT logic
+
+#### 🎨 Template System
+
+- **`apply_template` Tool**: New tool for template operations with variable substitution
+- **Template Discovery**: Automatic detection of available templates in the graph
+- **Variable Substitution**: Support for `{{projectName}}` → "My Project" placeholder replacement
+- **Multiple Modes**: Replace, append, or prepend content with template application
+- **Validation**: Placeholder detection and structure analysis with comprehensive error reporting
+
+#### 🔗 Relationship Management
+
+- **`manage_relations` Tool**: New tool for comprehensive relationship operations
+- **Bi-Directional Links**: Create and manage links between pages with automatic reference updates
+- **Graph Analysis**: Analyze relationship structure around specific pages with centrality scores
+- **Graph Structure**: Get overall graph connectivity patterns and clustering information
+- **Link Operations**: Create, remove, and analyze page relationships with detailed metrics
+
+#### 📊 Enhanced Page Retrieval
+
+- **Comprehensive Data**: `get_page` now returns backlinks, outgoing links, and related pages
+- **Relationship Metadata**: Reference counts, last referenced timestamps, and connection types
+- **Graph Metrics**: Centrality scores, connection counts, and cluster information
+- **AI-Powered Relatedness**: Intelligent suggestions for related content with relevance scores
+
+#### 🏷️ Complete Property Management
+
+- **Query Mode**: `set_page_properties` now supports calling without parameters to get current properties
+- **Enhanced CRUD**: Upsert/remove properties in one call with comprehensive validation
+- **Property Discovery**: Find pages with specific properties using advanced search patterns
+- **Fallback Support**: Block-based updates if API fails with graceful degradation
+
+#### 🛡️ Enhanced Safety Controls
+
+- **Explicit Confirmation**: Destructive operations now require `confirmDestroy: true` parameter
+- **Enhanced Dry Run**: Detailed previews of what will be deleted/changed before execution
+- **Context Awareness**: Shows page content, block counts, and relationships before deletion
+- **Comprehensive Validation**: Property type checking and format validation with auto-correction
+
+#### 🔍 Advanced Query Intelligence
+
+- **Pattern Recognition**: Intelligent handling of `"empty"`, `"*"`, and date format patterns
+- **Operator Precedence**: Proper AND/OR/NOT logic with correct operator precedence
+- **Context Metadata**: Query type detection and filter analysis in search results
+- **Performance Optimization**: Efficient handling of complex queries with result caching
+
+#### 🏗️ Technical Architecture
+
+- **Modular Design**: Maintains existing architecture with only 2 new tools added
+- **Enhanced Handlers**: `search-handlers.ts`, `template-handlers.ts`, `relation-handlers.ts`
+- **Type Safety**: 100% TypeScript compliance with comprehensive type definitions
+- **Performance**: Optimized for large graphs with intelligent caching and relationship analysis
+
+---
+
+## [1.0.3] - 2025-01-20
+
 ## [1.0.3] - 2025-01-20
 
 ### 🚀 Enhanced Markdown Parser - Major Architecture Improvement
