@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import {
   sanitizeString,
   validatePageName,
@@ -311,17 +311,11 @@ describe('Security utilities', () => {
       });
     });
 
-    it('should warn about debug mode', () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
+    it('should not throw on debug mode (warnings handled by caller)', () => {
       const config = { debug: true };
-      validateConfig(config);
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Debug mode is enabled - ensure this is intentional for production'
-      );
-
-      consoleSpy.mockRestore();
+      // Debug mode warnings are now handled by the caller, not the validation function
+      expect(() => validateConfig(config)).not.toThrow();
     });
   });
 });

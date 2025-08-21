@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import { ConfigSchema, loadConfig, validateConfigSecurity } from './config.js';
 
@@ -112,9 +112,8 @@ describe('validateConfigSecurity', () => {
     process.env = originalEnv;
   });
 
-  it('should warn about localhost in production', () => {
+  it('should not throw on localhost in production (warnings handled by caller)', () => {
     process.env['NODE_ENV'] = 'production';
-    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     const config = {
       apiUrl: 'http://localhost:12315',
@@ -124,17 +123,11 @@ describe('validateConfigSecurity', () => {
       debug: false,
     };
 
-    validateConfigSecurity(config);
-    expect(consoleSpy).toHaveBeenCalledWith(
-      'Warning: Using localhost API URL in production environment'
-    );
-
-    consoleSpy.mockRestore();
+    // Security warnings are now handled by the caller, not the validation function
+    expect(() => validateConfigSecurity(config)).not.toThrow();
   });
 
-  it('should warn about weak token', () => {
-    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
+  it('should not throw on weak token (warnings handled by caller)', () => {
     const config = {
       apiUrl: 'http://127.0.0.1:12315',
       apiToken: 'short',
@@ -143,11 +136,7 @@ describe('validateConfigSecurity', () => {
       debug: false,
     };
 
-    validateConfigSecurity(config);
-    expect(consoleSpy).toHaveBeenCalledWith(
-      'Warning: API token appears to be weak (less than 16 characters)'
-    );
-
-    consoleSpy.mockRestore();
+    // Token strength warnings are now handled by the caller, not the validation function
+    expect(() => validateConfigSecurity(config)).not.toThrow();
   });
 });

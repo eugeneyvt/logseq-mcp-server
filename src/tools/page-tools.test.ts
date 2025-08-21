@@ -53,9 +53,9 @@ describe('Page Tools', () => {
   describe('logseq_list_pages handler', () => {
     it('should list all pages', async () => {
       const mockPages: LogseqPage[] = [
-        { id: 1, name: 'Page 1', originalName: 'Page 1', journal: false },
-        { id: 2, name: 'Page 2', originalName: 'Page 2', journal: true },
-        { id: 3, name: 'Page 3', originalName: 'Page 3' },
+        { id: 1, name: 'Page 1', originalName: 'Page 1', 'journal?': false },
+        { id: 2, name: 'Page 2', originalName: 'Page 2', 'journal?': true },
+        { id: 3, name: 'Page 3', originalName: 'Page 3', 'journal?': false },
       ];
 
       client.getAllPages.mockResolvedValue(mockPages);

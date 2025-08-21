@@ -8,6 +8,9 @@ import type { Config } from '../schemas/config.js';
 vi.mock('axios');
 const mockedAxios = axios as Mocked<typeof axios>;
 
+// Mock axios.isAxiosError to return true for our mock errors
+mockedAxios.isAxiosError = vi.fn((error: any) => error && error.isAxiosError === true);
+
 // Mock cache and monitoring
 vi.mock('./cache.js', () => ({
   pageCache: {
@@ -115,6 +118,8 @@ describe('LogseqClient', () => {
     it('should handle connection refused error', async () => {
       const connectionError = new Error('Connection refused');
       (connectionError as any).code = 'ECONNREFUSED';
+      (connectionError as any).isAxiosError = true;
+      (connectionError as any).response = undefined; // No response for connection errors
       mockAxiosInstance.post.mockRejectedValue(connectionError);
 
       await expect(client.callApi('test.method')).rejects.toThrow(LogseqConnectionError);
@@ -123,6 +128,8 @@ describe('LogseqClient', () => {
     it('should retry on retryable errors', async () => {
       const connectionError = new Error('Network error');
       (connectionError as any).code = 'ECONNREFUSED';
+      (connectionError as any).isAxiosError = true;
+      (connectionError as any).response = undefined; // No response for connection errors
 
       mockAxiosInstance.post
         .mockRejectedValueOnce(connectionError)
@@ -171,24 +178,44 @@ describe('LogseqClient', () => {
   describe('getPage', () => {
     it('should get page by name', async () => {
       const mockPage = { id: 1, name: 'Test Page', originalName: 'Test Page' };
+      const mockPages = [mockPage];
 
-      mockAxiosInstance.post.mockResolvedValue({
-        status: 200,
-        data: { data: mockPage },
-      });
+      // Mock getAllPages call
+      mockAxiosInstance.post
+        .mockResolvedValueOnce({
+          status: 200,
+          data: { data: mockPages },
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          data: { data: mockPage },
+        });
 
       const result = await client.getPage('Test Page');
 
-      expect(mockAxiosInstance.post).toHaveBeenCalledWith('/api', {
+      expect(mockAxiosInstance.post).toHaveBeenCalledTimes(2);
+      expect(mockAxiosInstance.post).toHaveBeenNthCalledWith(1, '/api', {
+        method: 'logseq.Editor.getAllPages',
+        args: [],
+      });
+      expect(mockAxiosInstance.post).toHaveBeenNthCalledWith(2, '/api', {
         method: 'logseq.Editor.getPage',
-        args: ['Test Page'],
+        args: [1], // Uses page ID, not name
       });
       expect(result).toEqual(mockPage);
     });
 
     it('should return null for non-existent page', async () => {
-      const notFoundError = new LogseqApiError('Page not found');
-      mockAxiosInstance.post.mockRejectedValue(notFoundError);
+      const mockPages = [{ id: 1, name: 'Test Page', originalName: 'Test Page' }];
+      const notFoundError = new LogseqApiError('Page not found', 404);
+
+      // Mock getAllPages call
+      mockAxiosInstance.post
+        .mockResolvedValueOnce({
+          status: 200,
+          data: { data: mockPages },
+        })
+        .mockRejectedValueOnce(notFoundError);
 
       const result = await client.getPage('Non-existent Page');
 
@@ -254,13 +281,11 @@ describe('LogseqClient', () => {
       expect(result).toEqual(mockBlock);
     });
 
-    it('should return null for non-existent block', async () => {
-      const notFoundError = new LogseqApiError('Block not found');
+    it('should throw LogseqApiError for non-existent block', async () => {
+      const notFoundError = new LogseqApiError('Block not found', 404);
       mockAxiosInstance.post.mockRejectedValue(notFoundError);
 
-      const result = await client.getBlock('non-existent-uuid');
-
-      expect(result).toBeNull();
+      await expect(client.getBlock('non-existent-uuid')).rejects.toThrow(LogseqApiError);
     });
   });
 
