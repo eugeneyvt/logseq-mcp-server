@@ -23,19 +23,19 @@ Thumbs.db
 .git/
 .gitignore
 
-# Example files
+# Example files and outdated code
 claude-desktop-config.example.json
+examples/
 
-# Documentation
-docs/
+# Internal documentation (keep public docs)
+CLAUDE.md
 
 # Test files
 test/
 tests/
-*.test.js
-*.test.ts
-*.spec.js
-*.spec.ts
+*.test.*
+*.spec.*
+__tests__/
 
 # Coverage
 coverage/

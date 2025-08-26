@@ -1,6 +1,6 @@
 # Configuration Guide
 
-This guide provides detailed configuration options for the Logseq MCP Server.
+This guide provides detailed configuration options for Logseq MCP v1.0.0-beta.1.
 
 ## Environment Variables
 
@@ -22,7 +22,7 @@ This guide provides detailed configuration options for the Logseq MCP Server.
 
 | Variable    | Description      | Default       | Example                  |
 | ----------- | ---------------- | ------------- | ------------------------ |
-| `LOG_LEVEL` | Logging level    | `info`        | `debug`, `warn`, `error` |
+| `LOG_LEVEL` | Logging level    | `info` (dev), `error` (prod/unset) | `debug`, `warn`, `error` |
 | `NODE_ENV`  | Environment mode | `development` | `production`             |
 
 ### Security Configuration
@@ -33,31 +33,65 @@ This guide provides detailed configuration options for the Logseq MCP Server.
 | `RATE_LIMIT_WINDOW` | Rate limit window (ms)                   | `60000` | `120000` |
 | `CONFIRM_DESTROY`   | Require confirmation for destructive ops | `false` | `true`   |
 
-## New Capabilities
+### New v1.0.0 Configuration Options
 
-### Template System Configuration
+| Variable                    | Description                              | Default | Example         |
+| --------------------------- | ---------------------------------------- | ------- | --------------- |
+| `LOGSEQ_STRICT_MODE`        | Enable strict format validation          | `true`  | `false`         |
+| `LOGSEQ_AUTOFIX_FORMAT`     | Auto-fix common formatting issues        | `true`  | `false`         |
+| `LOGSEQ_DEFAULT_DRY_RUN`    | Default dry-run behavior                 | `false` | `true`          |
+| `GRAPH_MAP_CACHE_TTL`       | Graph map cache duration (seconds)       | `300`   | `600`           |
+| `PLACEMENT_CONFIDENCE_THRESHOLD` | Minimum confidence for placement suggestions | `0.7` | `0.8`      |
 
-The enhanced template system automatically discovers templates in your Logseq graph:
+## Key Capabilities in v1.0.0
 
-- **Template Discovery**: Automatically finds pages with template properties or naming patterns
-- **Variable Substitution**: Supports `{{variableName}}` placeholders with automatic validation
-- **Application Modes**: Replace, append, or prepend content with flexible template usage
+### Unified 4-Tool Architecture
 
-### Relationship Management
+The server now uses a revolutionary **4-tool unified architecture** that dramatically simplifies AI tool selection:
 
-Advanced relationship features for comprehensive knowledge graph management:
+- **🔍 Search Tool**: Advanced multi-modal search with sophisticated filtering and pagination
+- **📖 Get Tool**: Unified content retrieval with full details and context
+- **✏️ Edit Tool**: Content creation, modification, and movement with template fixes
+- **🗑️ Delete Tool**: Safe content removal with impact analysis and confirmation
 
-- **Bi-Directional Links**: Automatic creation and maintenance of page relationships
-- **Graph Analysis**: Built-in centrality scoring and clustering detection
-- **Reference Tracking**: Comprehensive tracking of page references and backlinks
+### Template System Overhaul
 
-### Enhanced Search Capabilities
+**Major improvement**: Single-block template enforcement fixes Logseq compatibility issues:
 
-Multi-modal search with intelligent pattern recognition:
+- **Single-Block Enforcement**: Templates MUST be single blocks only (Logseq standard)
+- **Automatic Validation**: Rejects multi-block templates with clear error messages
+- **Proper Template Insertion**: Templates insert as single blocks, not page replacement
+- **Variable Substitution**: Enhanced `{{variableName}}` placeholder support
 
-- **Query Types**: Templates, properties, relations, dates, and combined filters
-- **Pattern Recognition**: Smart handling of `"empty"`, `"*"`, and date formats
-- **Combined Logic**: AND/OR/NOT operators with proper precedence
+### Advanced Search & Filtering
+
+Multi-modal search with cursor-based pagination:
+
+- **Template Discovery**: `templates:*` and `template:"Meeting Template"`
+- **Property-Based Search**: `property:status=open AND date:last-week`
+- **Relationship Analysis**: `backlinks:"Important Topic"`, `references:"Research Topic"`
+- **Date-Based Queries**: `date:today`, `date:last-week`, `date:last-month`
+- **Combined Filters**: AND/OR/NOT operators with proper precedence
+
+### Enhanced Safety Controls
+
+Production-ready safety features:
+
+- **Idempotency Controls**: Prevent duplicate operations with safe retries
+- **Dry-Run Mode**: Preview operations without execution
+- **Confirmation Requirements**: `confirmDestroy: true` for destructive operations
+- **Impact Analysis**: Pre-deletion warnings and dependency tracking
+- **Soft Delete**: Move to trash instead of permanent deletion
+
+### Performance & Scalability
+
+Built for large graphs and high-frequency usage:
+
+- **Cursor-Based Pagination**: Stable pagination for large result sets (max 100 items)
+- **Intelligent Caching**: 3-5 minute TTL for different content types
+- **Connection Management**: Persistent HTTP with automatic retry
+- **Rate Limiting**: Configurable protection against abuse
+- **Content Limits**: Hard limits prevent performance issues
 
 ## Configuration Examples
 
@@ -78,7 +112,7 @@ LOGSEQ_TIMEOUT=15000
 # .env file for production
 LOGSEQ_API_URL=http://127.0.0.1:12315
 LOGSEQ_API_TOKEN=prod-secure-token-xyz789
-LOG_LEVEL=info
+# LOG_LEVEL defaults to 'error' in production or when NODE_ENV is unset
 NODE_ENV=production
 LOGSEQ_TIMEOUT=30000
 LOGSEQ_MAX_RETRIES=5
@@ -116,7 +150,6 @@ RATE_LIMIT_WINDOW=60000
       "env": {
         "LOGSEQ_API_URL": "http://127.0.0.1:12315",
         "LOGSEQ_API_TOKEN": "your-secure-api-token",
-        "LOG_LEVEL": "info",
         "NODE_ENV": "production",
         "LOGSEQ_TIMEOUT": "30000",
         "LOGSEQ_MAX_RETRIES": "5",
@@ -335,8 +368,8 @@ module.exports = {
     maxRetries: parseInt(process.env.LOGSEQ_MAX_RETRIES) || 3,
   },
   logging: {
-    level: process.env.LOG_LEVEL || 'info',
-    isDevelopment: process.env.NODE_ENV !== 'production',
+    level: process.env.LOG_LEVEL || (process.env.NODE_ENV === 'development' ? 'info' : 'error'),
+    isDevelopment: process.env.NODE_ENV === 'development',
   },
   security: {
     rateLimitMax: parseInt(process.env.RATE_LIMIT_MAX) || 100,
@@ -358,7 +391,8 @@ EXPOSE 3000
 
 ENV LOGSEQ_API_URL=http://host.docker.internal:12315
 ENV NODE_ENV=production
-ENV LOG_LEVEL=info
+# Optional: override default error-level logging in production or unset NODE_ENV
+# ENV LOG_LEVEL=info
 
 CMD ["node", "dist/index.js"]
 ```

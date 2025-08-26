@@ -5,13 +5,18 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 
-import { createErrorResponse, sanitizeErrorForLogging } from './errors/index.js';
-import { createCoreMethods } from './handlers/core-methods.js';
+import { createErrorResponse, sanitizeErrorForLogging, createStructuredError, ErrorCode } from './utils/system/errors.js';
+import { formatError } from './utils/error-formatting.js';
+import { createSearchTool } from './tools/search/index.js';
+import { createGetTool } from './tools/get/index.js';
+import { createEditTool } from './tools/edit/index.js';
+import { createDeleteTool } from './tools/delete/index.js';
 import { loadConfig, validateConfigSecurity } from './schemas/config.js';
 import { LogseqClient } from './logseq-client.js';
-import { logger } from './utils/logger.js';
+import { logger } from './utils/system/logger.js';
 
 import type { Config } from './schemas/config.js';
+
 
 /**
  * Main MCP server class for Logseq integration
@@ -26,8 +31,8 @@ class LogseqMcpServer {
   constructor(config: Config) {
     this.server = new Server(
       {
-        name: 'logseq-mcp-server',
-        version: '1.0.2',
+        name: 'logseq-mcp',
+        version: '1.0.0-beta.1',
       },
       {
         capabilities: {
@@ -42,21 +47,33 @@ class LogseqMcpServer {
   }
 
   /**
-   * Initialize all available tools using core methods design
+   * Initialize all available tools using unified 4-tool architecture
    */
   private setupTools(): void {
-    logger.debug('Setting up core methods');
+    logger.debug('Setting up unified 4-tool architecture');
 
-    // Create core methods (slim set + macros + context-aware extensions)
-    const { tools: coreTools, handlers: coreHandlers } = createCoreMethods(this.client);
+    // Create the 4 unified tools
+    const searchTool = createSearchTool(this.client);
+    const getTool = createGetTool(this.client);
+    const editTool = createEditTool(this.client);
+    const deleteTool = createDeleteTool(this.client);
 
-    // Use only the core methods
-    this.allTools = [...coreTools];
+    // Set up tools and handlers
+    this.allTools = [
+      searchTool.tool,
+      getTool.tool,
+      editTool.tool,
+      deleteTool.tool
+    ];
+
     this.allHandlers = {
-      ...coreHandlers,
+      'search': searchTool.handler,
+      'get': getTool.handler,
+      'edit': editTool.handler,
+      'delete': deleteTool.handler
     };
 
-    logger.info({ toolCount: this.allTools.length }, 'Core methods initialized');
+    logger.debug({ toolCount: this.allTools.length }, 'Tools initialized');
   }
 
   /**
@@ -98,11 +115,14 @@ class LogseqMcpServer {
           'Tool call failed'
         );
 
-        const errorResponse = createErrorResponse(error);
+        // Convert unknown error to StructuredError
+        const structuredError = createStructuredError(ErrorCode.INTERNAL, { error: formatError(error) });
+
+        const errorResponse = createErrorResponse(structuredError);
 
         // Provide helpful error messages
         let helpText = '';
-        if (errorResponse.message.includes('Connection refused')) {
+        if (errorResponse.error.message.includes('Connection refused')) {
           helpText =
             '\n\nTroubleshooting:\n' +
             '1. Make sure Logseq is running\n' +
@@ -110,7 +130,7 @@ class LogseqMcpServer {
             '3. Enable HTTP API (Settings → Features → HTTP API)\n' +
             '4. Generate an API token (Settings → HTTP API Authentication Token)\n' +
             '5. Verify the API URL and token are correct';
-        } else if (errorResponse.message.includes('Unauthorized')) {
+        } else if (errorResponse.error.message.includes('Unauthorized')) {
           helpText = '\n\nPlease check your API token in the configuration.';
         }
 
@@ -118,7 +138,7 @@ class LogseqMcpServer {
           content: [
             {
               type: 'text' as const,
-              text: `Error: ${errorResponse.message}${helpText}`,
+              text: `Error: ${errorResponse.error.message}${helpText}`,
             },
           ],
           isError: true,
@@ -133,7 +153,7 @@ class LogseqMcpServer {
    */
   async run(): Promise<void> {
     // Test connection on startup
-    logger.info('Starting Logseq MCP Server v1.0.2 with enhanced core methods...');
+    logger.info('Starting Logseq MCP Server v1.0.0-beta.1...');
     logger.debug('Testing connection to Logseq...');
 
     const isConnected = await this.client.testConnection();
@@ -143,35 +163,12 @@ class LogseqMcpServer {
         'Make sure Logseq is running with HTTP API enabled and the correct token is provided.'
       );
     } else {
-      logger.info('Successfully connected to Logseq!');
-
-      // On session start, refresh build_graph_map for context awareness
-      logger.info('Building initial graph map...');
-      try {
-        const buildGraphHandler = this.allHandlers['build_graph_map'];
-        if (buildGraphHandler) {
-          await buildGraphHandler({ refresh: true });
-          logger.info('Graph map initialized successfully');
-        }
-      } catch (error) {
-        logger.warn(
-          { error: sanitizeErrorForLogging(error) },
-          'Failed to build initial graph map, will build on first use'
-        );
-      }
+      logger.info('Successfully connected to Logseq API');
     }
 
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    logger.info('Logseq MCP Server is running and ready to receive requests.');
-    logger.info('Enhanced features active:');
-    logger.info('- Core methods with slim set + macros design');
-    logger.info(
-      '- Context-aware extensions (graph mapping, placement suggestions, content planning)'
-    );
-    logger.info('- Strict formatting validation and normalization');
-    logger.info('- Batch/atomic operations with idempotency controls');
-    logger.info('- Standardized error handling with actionable hints');
+    logger.info('Logseq MCP Server is running and ready');
   }
 }
 

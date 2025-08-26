@@ -1,57 +1,51 @@
-# 🧠 Logseq MCP Server
-
-> **Transform your Logseq knowledge base into an AI-powered workspace**
+# Logseq MCP - AI-Powered Knowledge Base Integration
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
 [![MCP](https://img.shields.io/badge/MCP-Protocol-orange.svg)](https://modelcontextprotocol.io/)
-[![Version](https://img.shields.io/badge/version-1.0.4-blue.svg)](https://github.com/eugeneyvt/logseq-ai/releases)
+[![Version](https://img.shields.io/npm/v/logseq-mcp-server?color=blue&label=version)](https://www.npmjs.com/package/logseq-mcp-server)
 
-A **production-ready** Model Context Protocol (MCP) server that enables AI assistants to seamlessly interact with your Logseq knowledge base. This server acts as a bridge between AI agents and Logseq graphs, providing comprehensive access to read, create, update, and manage your notes with enterprise-grade reliability, security, and performance.
+Model Context Protocol (MCP) server that enables AI assistants to seamlessly interact with your Logseq knowledge base. Transform your personal notes into an AI-powered workspace with advanced search, content creation, and knowledge management capabilities.
 
-## ✨ Why Logseq MCP Server?
+## ✨ Features
 
 - 🚀 **Instant AI Integration** - Connect any MCP-compatible AI to your Logseq graph
-- 🔒 **Privacy First** - All operations are local-only, no data leaves your machine
-- 🎯 **15+ Core Methods** - Streamlined, efficient tools for all Logseq operations including templates, properties, and relationships
-- 🔍 **Multi-Modal Search** - Advanced discovery with templates, properties, relations, dates, and combined filters
-- 🎨 **Template System** - Apply templates with variable substitution and multiple application modes
-- 🔗 **Knowledge Graph Management** - Bi-directional relationships, graph analysis, and centrality scoring
-- ⚡ **Production Ready** - Built with caching, monitoring, and security
-- 🎨 **Universal Compatibility** - Works with Claude, ChatGPT, and other AI assistants
-- 🧠 **Advanced Markdown Parser** - Comprehensive content processing with Logseq syntax preservation
+- 🔒 **Privacy First** - All operations are local-only, no data leaves your machine  
+- 🎯 **4 Intuitive Tools** - Unified Search/Get/Edit/Delete architecture for maximum clarity
+- 🔍 **Advanced Search** - Multi-modal discovery with templates, properties, relations, and date filters
+- 🎨 **Template System** - Single-block template enforcement with proper variable substitution
+- ⚡ **Enterprise Features** - Built with caching, monitoring, security, and idempotency controls
+- 🌟 **Universal Compatibility** - Works with Claude, ChatGPT, and other AI assistants
 
-## 🎯 Target Audience
+## 🛠️ Installation
 
-- **Knowledge Workers** - Researchers, writers, and content creators
-- **Developers** - Software engineers and technical teams
-- **Students** - Academic researchers and learners
-- **Productivity Enthusiasts** - Anyone using Logseq for personal knowledge management
-- **AI Developers** - Building AI applications that need knowledge base access
+### Requirements
 
-## 🚀 Quick Start
+- Node.js >= v18.0.0
+- Logseq with HTTP API enabled
+- MCP-compatible AI client (Claude Desktop, VS Code, Cursor, etc.)
 
-### 1. Install the Server
+### One-Command Install
 
 ```bash
-npm install -g logseq-mcp-server
+npm install -g logseq-mcp-server-server
 ```
 
-### 2. Configure Logseq
+## 🚀 Quick Setup (3 Steps)
 
-1. **Enable Developer Mode**: Settings → Advanced → Developer Mode
-2. **Enable HTTP API**: Settings → Features → HTTP API
-3. **Generate API Token**: Settings → HTTP API Authentication Token
-4. **Restart Logseq**
+### Step 1: Configure Logseq
 
-### 3. Connect Your AI Assistant
+1. **Enable HTTP API**: Settings → Features → HTTP APIs server
+2. **Generate API Token**: API → Authorization tokens → Add new token
+3. **Start server**
 
-Choose your AI platform below and follow the configuration steps.
+### Step 2: Choose Your AI Client
 
-## 🔧 Configuration Guide
+<details>
+<summary><b>📱 Claude Desktop</b></summary>
 
-### 🤖 Claude Desktop
+#### Method 1: Configuration File (Recommended)
 
 **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`  
 **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
@@ -71,14 +65,42 @@ Choose your AI platform below and follow the configuration steps.
 }
 ```
 
-### 🧠 ChatGPT (with MCP Support)
+**After saving**: Completely restart Claude Desktop
+
+#### Method 2: Terminal Command
+
+**macOS/Linux**:
+```bash
+echo '{"mcpServers":{"logseq":{"command":"npx","args":["logseq-mcp-server"],"env":{"LOGSEQ_API_URL":"http://127.0.0.1:12315","LOGSEQ_API_TOKEN":"your-api-token-here"}}}}' > ~/Library/Application\ Support/Claude/claude_desktop_config.json
+```
+
+**Windows (PowerShell)**:
+```powershell
+'{"mcpServers":{"logseq":{"command":"npx","args":["logseq-mcp-server"],"env":{"LOGSEQ_API_URL":"http://127.0.0.1:12315","LOGSEQ_API_TOKEN":"your-api-token-here"}}}}' | Out-File -FilePath "$env:APPDATA\Claude\claude_desktop_config.json" -Encoding utf8
+```
+
+</details>
+
+<details>
+<summary><b>🤖 Claude Code</b></summary>
+
+#### Method 1: Environment Setup
+```bash
+# Set environment variables and run directly
+export LOGSEQ_API_URL="http://127.0.0.1:12315"
+export LOGSEQ_API_TOKEN="your-api-token-here"
+npx logseq-mcp-server
+```
+
+#### Method 2: Configuration File
+Create or edit your Claude Code MCP configuration:
 
 ```json
 {
   "mcpServers": {
     "logseq": {
       "command": "npx",
-      "args": ["logseq-mcp-server"],
+    "args": ["logseq-mcp-server"],
       "env": {
         "LOGSEQ_API_URL": "http://127.0.0.1:12315",
         "LOGSEQ_API_TOKEN": "your-api-token-here"
@@ -88,25 +110,292 @@ Choose your AI platform below and follow the configuration steps.
 }
 ```
 
-### 🤖 Anthropic Claude Console
+</details>
+
+<details>
+<summary><b>🔷 VS Code</b></summary>
+
+#### Method 1: Settings UI
+1. Open VS Code Settings (Ctrl/Cmd + ,)
+2. Search for "MCP"
+3. Add new server with these settings:
+   - Name: `logseq`
+   - Command: `npx`
+   - Args: `["logseq-mcp-server-server"]`
+   - Environment: `LOGSEQ_API_URL=http://127.0.0.1:12315`, `LOGSEQ_API_TOKEN=your-api-token-here`
+
+#### Method 2: Settings JSON
+
+**macOS**: `~/Library/Application Support/Code/User/settings.json`  
+**Windows**: `%APPDATA%\Code\User\settings.json`
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "logseq": {
+        "type": "stdio",
+        "command": "npx",
+    "args": ["logseq-mcp-server"],
+        "env": {
+          "LOGSEQ_API_URL": "http://127.0.0.1:12315",
+          "LOGSEQ_API_TOKEN": "your-api-token-here"
+        }
+      }
+    }
+  }
+}
+```
+
+#### Method 3: Terminal Command
+
+**macOS**:
+```bash
+# Add to VS Code settings.json
+cat >> ~/Library/Application\ Support/Code/User/settings.json << 'EOF'
+{
+  "mcp": {
+    "servers": {
+      "logseq": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["logseq-mcp-server"],
+        "env": {
+          "LOGSEQ_API_URL": "http://127.0.0.1:12315",
+          "LOGSEQ_API_TOKEN": "your-api-token-here"
+        }
+      }
+    }
+  }
+}
+EOF
+```
+
+**Windows (PowerShell)**:
+```powershell
+# Add to VS Code settings.json
+Add-Content -Path "$env:APPDATA\Code\User\settings.json" -Value @'
+{
+  "mcp": {
+    "servers": {
+      "logseq": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["logseq-mcp-server"],
+        "env": {
+          "LOGSEQ_API_URL": "http://127.0.0.1:12315",
+          "LOGSEQ_API_TOKEN": "your-api-token-here"
+        }
+      }
+    }
+  }
+}
+'@
+```
+
+</details>
+
+<details>
+<summary><b>🖱️ Cursor</b></summary>
+
+#### Method 1: Configuration File (Recommended)
+
+**macOS**: `~/.cursor/mcp.json`  
+**Windows**: `%USERPROFILE%\.cursor\mcp.json`
+
+```json
+{
+  "mcpServers": {
+    "logseq": {
+      "command": "npx",
+    "args": ["logseq-mcp-server"],
+      "env": {
+        "LOGSEQ_API_URL": "http://127.0.0.1:12315",
+        "LOGSEQ_API_TOKEN": "your-api-token-here"
+      }
+    }
+  }
+}
+```
+
+#### Method 2: Terminal Command
+
+**macOS/Linux**:
+```bash
+mkdir -p ~/.cursor
+echo '{"mcpServers":{"logseq":{"command":"npx","args":["logseq-mcp-server"],"env":{"LOGSEQ_API_URL":"http://127.0.0.1:12315","LOGSEQ_API_TOKEN":"your-api-token-here"}}}}' > ~/.cursor/mcp.json
+```
+
+**Windows (PowerShell)**:
+```powershell
+New-Item -Path "$env:USERPROFILE\.cursor" -ItemType Directory -Force
+'{"mcpServers":{"logseq":{"command":"npx","args":["logseq-mcp-server"],"env":{"LOGSEQ_API_URL":"http://127.0.0.1:12315","LOGSEQ_API_TOKEN":"your-api-token-here"}}}}' | Out-File -FilePath "$env:USERPROFILE\.cursor\mcp.json" -Encoding utf8
+```
+
+</details>
+
+<details>
+<summary><b>🌪️ Windsurf</b></summary>
+
+#### Method 1: Configuration File
+
+**macOS**: `~/Library/Application Support/Windsurf/mcp.json`  
+**Windows**: `%APPDATA%\Windsurf\mcp.json`
+
+```json
+{
+  "mcpServers": {
+    "logseq": {
+      "command": "npx",
+      "args": ["logseq-mcp-server-server"],
+      "env": {
+        "LOGSEQ_API_URL": "http://127.0.0.1:12315",
+        "LOGSEQ_API_TOKEN": "your-api-token-here"
+      }
+    }
+  }
+}
+```
+
+#### Method 2: Terminal Command
+
+**macOS**:
+```bash
+mkdir -p ~/Library/Application\ Support/Windsurf
+echo '{"mcpServers":{"logseq":{"command":"npx","args":["logseq-mcp-server"],"env":{"LOGSEQ_API_URL":"http://127.0.0.1:12315","LOGSEQ_API_TOKEN":"your-api-token-here"}}}}' > ~/Library/Application\ Support/Windsurf/mcp.json
+```
+
+**Windows (PowerShell)**:
+```powershell
+New-Item -Path "$env:APPDATA\Windsurf" -ItemType Directory -Force
+'{"mcpServers":{"logseq":{"command":"npx","args":["logseq-mcp-server"],"env":{"LOGSEQ_API_URL":"http://127.0.0.1:12315","LOGSEQ_API_TOKEN":"your-api-token-here"}}}}' | Out-File -FilePath "$env:APPDATA\Windsurf\mcp.json" -Encoding utf8
+```
+
+</details>
+
+<details>
+<summary><b>🌐 Continue.dev</b></summary>
+
+Add to your Continue configuration:
+
+```json
+{
+  "mcpServers": {
+    "logseq": {
+      "command": "npx",
+    "args": ["logseq-mcp-server"],
+      "env": {
+        "LOGSEQ_API_URL": "http://127.0.0.1:12315",
+        "LOGSEQ_API_TOKEN": "your-api-token-here"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><b>🔧 Zed Editor</b></summary>
+
+Add to your Zed settings:
+
+```json
+{
+  "context_servers": {
+    "logseq": {
+      "command": {
+        "path": "npx",
+        "args": ["logseq-mcp-server-server"]
+      },
+      "settings": {
+        "LOGSEQ_API_URL": "http://127.0.0.1:12315",
+        "LOGSEQ_API_TOKEN": "your-api-token-here"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><b>🧠 Cline (VS Code Extension)</b></summary>
+
+Add to your VS Code settings.json (Cline reads the standard MCP servers map):
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "logseq": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["logseq-mcp-server"],
+        "env": {
+          "LOGSEQ_API_URL": "http://127.0.0.1:12315",
+          "LOGSEQ_API_TOKEN": "your-api-token-here"
+        }
+      }
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><b>🔬 MCP Inspector (Debug/Testing)</b></summary>
+
+Run the Inspector and connect to this server locally:
+
+```bash
+# macOS/Linux
+export LOGSEQ_API_URL="http://127.0.0.1:12315"
+export LOGSEQ_API_TOKEN="your-api-token-here"
+npx @modelcontextprotocol/inspector --command npx --args logseq-mcp-server
+```
+
+```powershell
+# Windows (PowerShell)
+$env:LOGSEQ_API_URL = "http://127.0.0.1:12315"
+$env:LOGSEQ_API_TOKEN = "your-api-token-here"
+npx @modelcontextprotocol/inspector --command npx --args logseq-mcp-server
+```
+
+</details>
+
+<details>
+<summary><b>🚀 Raycast (Status)</b></summary>
+
+Raycast AI has been rolling out MCP support. If your build exposes MCP server configuration, you can add this server similarly to the examples above (command `npx`, args `["logseq-mcp-server"]`, and the two environment variables). If you don’t see MCP settings, this may not be available in your version yet.
+
+</details>
+
+<details>
+<summary><b>🤖 Other MCP Clients</b></summary>
+
+#### Method 1: Direct Command
+For any MCP-compatible client, run directly:
 
 ```bash
 # Set environment variables
 export LOGSEQ_API_URL="http://127.0.0.1:12315"
 export LOGSEQ_API_TOKEN="your-api-token-here"
 
-# Run Claude Console with MCP support
-claude console --mcp-servers logseq
+# Run the server
+logseq-mcp-server
 ```
 
-### 🐙 GitHub Copilot Chat
+#### Method 2: Standard MCP Configuration
+Most MCP clients support this standard format:
 
 ```json
 {
   "mcpServers": {
     "logseq": {
       "command": "npx",
-      "args": ["logseq-mcp-server"],
+    "args": ["logseq-mcp-server"],
       "env": {
         "LOGSEQ_API_URL": "http://127.0.0.1:12315",
         "LOGSEQ_API_TOKEN": "your-api-token-here"
@@ -116,369 +405,229 @@ claude console --mcp-servers logseq
 }
 ```
 
-### 🔧 Custom MCP Clients
+</details>
 
-For any MCP-compatible client, set these environment variables:
+### Step 3: Start Using
 
-```bash
-export LOGSEQ_API_URL="http://127.0.0.1:12315"
-export LOGSEQ_API_TOKEN="your-api-token-here"
-```
+That's it! Your AI assistant now has access to your Logseq knowledge base through 4 powerful tools.
 
-Then run:
+## 🔧 Available Tools
 
-```bash
-logseq-mcp-server
-```
+Logseq MCP provides 4 unified tools that handle all your knowledge base operations:
 
-## 🛠️ Available Core Methods
+### 🔍 `search` - Advanced Multi-Modal Discovery
 
-### 🌟 Core Methods Architecture
+Find content across your entire graph with sophisticated filtering:
 
-This server uses an advanced **core methods + macros** design for maximum efficiency:
+- **Template Discovery**: `templates:*` to list all templates
+- **Property Search**: `property:status=open AND date:last-week`
+- **Relationship Analysis**: `backlinks:"Important Topic"`
+- **Date-Based Queries**: `date:today`, `date:last-month`
+- **Combined Filters**: Complex AND/OR/NOT queries
 
-- **Minimum API calls** - Smart batching and atomic operations
-- **Maximum precision** - UUID-based operations with strict validation
-- **Context awareness** - Graph structure mapping and intelligent placement
-- **Format validation** - Automatic normalization and error correction
-- **Advanced parsing** - Comprehensive markdown parser with Logseq syntax preservation
+### 📖 `get` - Unified Content Retrieval
 
-### 📝 System & Page Operations
+Retrieve detailed information with full context:
 
-| Method                | Description                          | Features                                          |
-| --------------------- | ------------------------------------ | ------------------------------------------------- |
-| `get_system_info`     | Get system and graph status          | Cache status, version info                        |
-| `ensure_page`         | Ensure page exists with smart policy | Create/error/skip modes, validation               |
-| `get_page`            | Get page information                 | Cached, with error hints, relationship data       |
-| `set_page_content`    | Replace entire page content          | Comprehensive markdown parser, atomic replacement |
-| `set_page_properties` | Manage page properties efficiently   | Batch upsert/remove operations, query mode        |
+- **Pages**: Complete content with backlinks and graph metrics
+- **Blocks**: Hierarchical content with parent-child relationships
+- **Templates**: Template definitions with variable analysis
+- **Properties**: Page/block metadata and property schemas
+- **Relations**: Graph connections and relationship analysis
+- **System**: Health status and graph statistics
 
-### 🧱 Block Operations
+### ✏️ `edit` - Comprehensive Content Management
 
-| Method          | Description                        | Features                                                                   |
-| --------------- | ---------------------------------- | -------------------------------------------------------------------------- |
-| `append_blocks` | Add multiple blocks with precision | **Comprehensive markdown parser**, parent/child relationships, positioning |
-| `ensure_page`   | Create nested pages with hierarchy | Supports "Parent/Child/Subchild" structure                                 |
-| `update_block`  | Update block content by UUID       | Format validation, cache invalidation                                      |
-| `move_block`    | Move blocks with positioning       | Structural integrity, reference updates                                    |
+Create, modify, and organize your knowledge:
 
-### 🔍 Search & Context
+- **Pages**: Create, update, append, prepend content
+- **Blocks**: Positional operations with precise placement
+- **Templates**: Single-block enforcement with variable substitution
+- **Properties**: Metadata management and validation
+- **Relations**: Bi-directional link creation and updates
+- **Safety**: Dry-run mode, validation, and rollback support; `confirmDestroy: true` required for `operation: "remove"`; `control.maxOps` enforced to prevent large accidental edits
 
-| Method              | Description                                        | Features                                                                                                        |
-| ------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `search`            | Enhanced search with intelligent wildcard handling | Supports "\*" for all pages, "empty" for empty pages, templates, properties, relations, dates, combined filters |
-| `build_graph_map`   | Build graph structure cache                        | Auto-refresh, performance metrics                                                                               |
-| `suggest_placement` | AI-powered content placement                       | Intent analysis, confidence scores                                                                              |
-| `plan_content`      | Dry-run content planning                           | Alternative strategies, complexity                                                                              |
+Notes:
+- **Properties**: When targeting a page, the operation resolves to the page’s root block UUID. The page must already exist (no implicit creation).
+- **Templates**: Creation enforces the Logseq single-block template standard (single root block with content inserted as children when needed). Template insertion is append-only and requires an existing target page.
 
-### 🎨 Templates & Relationships
+### 🗑️ `delete` - Safe Content Removal
 
-| Method             | Description                    | Features                                                      |
-| ------------------ | ------------------------------ | ------------------------------------------------------------- |
-| `apply_template`   | Apply templates with variables | Template discovery, variable substitution, multiple modes     |
-| `manage_relations` | Manage page relationships      | Bi-directional links, graph analysis, structure visualization |
+Remove content with comprehensive safety controls:
 
-### ⚡ Batch & Macro Operations
+- **Impact Analysis**: Preview what will be affected before deletion
+- **Confirmation Required**: Explicit `confirmDestroy: true` for safety
+- **Soft Delete**: Move to trash instead of permanent removal
+- **Dependency Tracking**: Handle orphaned references and relationships
 
-| Method                | Description                    | Features                      |
-| --------------------- | ------------------------------ | ----------------------------- |
-| `batch`               | Execute multiple operations    | Atomic transactions, rollback |
-| `upsert_page_outline` | Create structured page layouts | Hierarchical content creation |
+## 💡 Example Usage
 
-### 🎛️ Advanced Control Parameters
-
-All methods support powerful control parameters:
-
-- **`dryRun`** - Preview operations without executing
-- **`strict`** - Enable/disable format validation
-- **`autofixFormat`** - Automatically fix common formatting issues
-- **`idempotencyKey`** - Prevent duplicate operations
-- **`maxOps`** - Limit operation scope for safety
-
-### 🚀 Markdown Processing
-
-The server features a **comprehensive markdown parser** that provides:
-
-- **Multi-format Support**: Headings (H1-H6), lists, tables, code blocks, blockquotes, images, thematic breaks
-- **Logseq Syntax Preservation**: Automatic detection and preservation of `[[page links]]`, `((block refs))`, `#tags`, and `key:: value` properties
-- **Smart Content Parsing**: Intelligent content type detection with appropriate handling
-- **Nested Structure Management**: Proper parent-child relationships and hierarchy
-- **Task List Support**: Native support for Logseq task lists with checkbox states
-- **HTML Sanitization**: Built-in protection against malicious content
-
-## 💡 Usage Examples
-
-### 🚀 New Capabilities Showcase
-
-#### **Template System**
+### Basic Operations
 
 ```
-"Find all templates in my graph and apply the 'Project Template' to create 'Q2 Marketing Campaign'"
-"Use 'Meeting Template' with variables: date='2024-01-15', team='Engineering', agenda='Sprint Planning'"
-"Apply 'Daily Review Template' to today's journal in append mode"
+"Search for all TODO items created this week"
+"Get the complete content of my 'Project Alpha' page with all backlinks"
+"Create a new page called 'Meeting Notes 2024-01-15' with today's agenda"
+"Apply my 'Daily Review Template' to create a new review for today"
 ```
 
-#### **Advanced Search & Discovery**
+### Advanced Workflows
 
 ```
-"Find all pages with status=open AND created in the last week"
-"Show me all templates OR pages with type=template"
-"Find pages that have priority=high AND are NOT archived"
-"List all backlinks to 'Important Concept' with reference counts"
-"Search for content from yesterday OR pages with urgent priority"
+"Find all pages tagged #project that have status=active, then create a summary page linking to all of them"
+"Search for templates related to meetings, then use the best one to create notes for tomorrow's team standup"
+"Get the graph structure around 'Machine Learning' and create a comprehensive overview page with all related concepts"
 ```
 
-#### **Knowledge Graph Management**
+### Template System
 
 ```
-"Create bi-directional links between 'Research' and 'Implementation' with text 'leads to'"
-"Analyze the relationship structure around 'Central Topic' and show centrality scores"
-"Get comprehensive overview of 'Project Alpha' including all relationships and metrics"
-"Show me the graph structure and most connected pages"
+"List all available templates in my knowledge base"
+"Apply the 'Project Template' with variables: name='Website Redesign', deadline='March 1st', team='Design'"
+"Create a new template called 'Book Notes' for capturing reading highlights"
 ```
 
-### 🎯 Real-World Scenarios
+## 🎯 Key Features
 
-#### **Nested Page Creation**
+### Revolutionary 4-Tool Architecture
 
-```
-"Create a nested project structure: Projects/Web Development/Frontend/React"
-"Organize research into: Research/AI/Neural Networks/Deep Learning"
-"Set up work hierarchy: Work/Meetings/2025/Q1/Weekly Standups"
-```
+- **Simplified AI Selection**: Instead of 15+ confusing micro-tools, choose from 4 clear action verbs
+- **Consistent Interface**: All tools follow the same parameter patterns and response formats  
+- **Type Safety**: Comprehensive validation with helpful error messages
+- **Production Ready**: Built with monitoring, caching, and reliability features
 
-#### **Academic Research**
+### Advanced Search Capabilities
 
-```
-"Use ensure_page to create 'AI Research 2025' and then append_blocks with:
-- Machine learning papers I should read
-- Key researchers to follow
-- Conference deadlines
-- My research questions"
-```
+- **Multi-Modal Discovery**: Search across pages, blocks, templates, tasks simultaneously
+- **Sophisticated Filtering**: Date ranges, properties, tags, relationships, content length
+- **Cursor-Based Pagination**: Handle large result sets efficiently (up to 100 items per page)
+- **Query Intelligence**: Automatic query type detection and optimization
 
-#### **Project Management**
+### Template System Excellence
 
-```
-"Use search with scope='blocks' to find TODO items mentioning 'project deadline'.
-Then use batch operations to ensure_page 'Q1 Priorities' and append_blocks
-with the high-priority items in a single atomic transaction."
-```
+- **Single-Block Enforcement**: Templates must be single blocks (Logseq standard compliance)
+- **Variable Substitution**: Full `{{variableName}}` placeholder support with validation
+- **Template Discovery**: Easy finding and application of existing templates
+- **Creation Validation**: Automatic format checking and error prevention
 
-#### **Daily Journaling**
+### Enterprise-Grade Safety
 
-```
-"Use suggest_placement to find the best location for meeting notes,
-then append_blocks to today's journal with structured meeting content:
-decisions made, action items, and next steps."
-```
+- **Idempotency Controls**: Prevent duplicate operations with safe retry mechanisms
+- **Dry-Run Mode**: Preview all operations before execution
+- **Confirmation Prompts**: Required confirmation for destructive operations
+- **Impact Analysis**: Comprehensive dependency tracking and orphan detection
+- **Soft Delete**: Recovery options for accidental deletions
 
-#### **Knowledge Synthesis**
+## 📊 Performance Features
 
-```
-"First use build_graph_map to understand the knowledge structure,
-then search for React hooks content. Use plan_content to design
-a summary page structure, then execute with batch operations:
-- Common patterns I use
-- Best practices I've learned
-- Examples from my projects
-- Links to the original notes"
-```
+### Intelligent Caching System
 
-#### **Template Management**
+- **Page Content**: 5-minute TTL with smart invalidation
+- **Graph Structure**: 3-minute TTL with relationship tracking
+- **Search Results**: Optimized caching for repeated queries
+- **Template Library**: Persistent caching for faster template discovery
 
-```
-"Find all available templates in my graph, then apply the 'Project Template'
-to create 'Q2 Marketing Campaign' with variables: quarter='Q2', team='Marketing', budget='50k'"
-```
+### Connection Management
 
-#### **Relationship Analysis**
+- **HTTP Connection Pooling**: Efficient request handling
+- **Automatic Retry Logic**: Exponential backoff for reliability
+- **Request Deduplication**: Prevent duplicate concurrent operations
+- **Timeout Management**: Configurable timeouts for different operation types
 
-```
-"Show me all pages that link to 'Important Concept', create bi-directional
-links between related topics, and analyze the graph structure around 'Central Topic'"
-```
+### Monitoring & Observability
 
-#### **Advanced Property Search**
-
-```
-"Find all pages with status=open AND created in the last week,
-then update their priority property to 'high' and create relationships
-to the 'Current Sprint' page"
-```
-
-#### **Content Cleanup**
-
-```
-"Find all empty pages that need content or cleanup:
-- Use find_empty_pages to identify pages with no content
-- Filter out journal pages if not needed
-- Get detailed analysis of why pages are empty
-- Prioritize cleanup based on page importance"
-```
-
-### 🔍 Advanced Search & Query Capabilities
-
-The enhanced search tool provides powerful multi-modal discovery:
-
-#### **Template Discovery**
-
-```
-"templates:*"                    // List all available templates
-"template:\"Meeting Template\""  // Find specific template
-```
-
-#### **Property-Based Search**
-
-```
-"property:status=open"           // Find pages with specific properties
-"properties:page=\"Project Alpha\"" // Get all properties for a page
-```
-
-#### **Relationship Analysis**
-
-```
-"backlinks:\"Important Topic\""  // Find pages that reference this
-"references:\"Research Topic\""   // Find all references and mentions
-```
-
-#### **Date-Based Search**
-
-```
-"date:2024-01-01"               // Specific date
-"date:today"                     // Today's content
-"date:last-week"                 // Last week's content
-"date:last-month"                // Last month's content
-```
-
-#### **Combined Filters**
-
-```
-"property:status=open AND date:last-week"  // Multiple conditions
-"templates:* OR property:type=template"    // OR logic
-"property:priority=high AND NOT archived"  // NOT operator
-```
-
-### 🔍 Advanced DataScript Queries
-
-```clojure
-;; Find all pages created this week
-[:find ?page-name
- :where
- [?page :block/name ?page-name]
- [?page :block/created-at ?created]
- [(> ?created 1640995200000)]]
-
-;; Find all blocks with TODO status
-[:find (pull ?block [*])
- :where
- [?block :block/marker "TODO"]]
-
-;; Find pages with specific properties
-[:find ?page-name
- :where
- [?page :block/name ?page-name]
- [?page :block/properties ?props]
- [(get ?props :type) ?type]
- [(= ?type "project")]]
-```
-
-## ⚡ Performance Features
-
-### 🚀 Built-in Optimizations
-
-- **Smart Caching**: Page listings (3min), content (5min), blocks (3min)
-- **Connection Pooling**: Efficient HTTP request management
-- **Retry Logic**: Exponential backoff for reliability
-- **Request Deduplication**: Prevents duplicate concurrent requests
-- **Memory Management**: Automatic cache cleanup and optimization
-
-### 📊 Monitoring & Health
-
-- **Real-time Metrics**: Request timing, cache hit rates, error rates
-- **Health Checks**: Automatic server status monitoring
-- **Rate Limiting**: Configurable protection against abuse
-- **Structured Logging**: Comprehensive logging with sensitive data redaction
+- **Real-time Metrics**: Operation timing, cache hit rates, error tracking
+- **Structured Logging**: Production-ready logs with sensitive data redaction
+- **Health Monitoring**: Automatic system status checks
+- **Rate Limiting**: Protection against abuse with configurable limits
 
 ## 🔒 Security & Privacy
 
-### 🛡️ Built-in Protections
+### Privacy-First Design
 
-- **Local-Only Operations**: No data leaves your machine
-- **Input Validation**: Comprehensive sanitization of all inputs
-- **Token Security**: API tokens are never logged or transmitted
-- **Rate Limiting**: Prevents abuse and ensures stability
-- **Error Sanitization**: No sensitive information in error messages
+- **Local-Only Operations**: No data transmission to external servers
+- **API Token Security**: Tokens never logged or exposed
+- **Input Sanitization**: Comprehensive validation of all user inputs
+- **Error Sanitization**: Sensitive information stripped from error messages
 
-### 🔐 Safe Operations
+### Built-in Protections
 
-- **Confirmation Prompts**: Destructive operations require explicit `confirmDestroy: true`
-- **Enhanced Dry Run**: Detailed previews of what will be deleted/changed
-- **Context Awareness**: Shows page content, block counts, relationships before deletion
-- **Property Validation**: All inputs are validated before processing
-- **Content Filtering**: Prevents script injection and malicious content
+- **Rate Limiting**: Configurable protection against abuse
+- **Content Validation**: Automatic detection and prevention of malicious content
+- **Secure Defaults**: Conservative security settings out of the box
+- **GDPR Compliance**: No data collection or external transmission
 
-## 🚨 Troubleshooting
+## 🐛 Troubleshooting
 
-### 🔍 Common Issues
+### Common Issues
 
-| Problem                  | Solution                                       |
-| ------------------------ | ---------------------------------------------- |
-| **"Connection refused"** | Ensure Logseq is running with HTTP API enabled |
-| **"Unauthorized"**       | Check your API token and regenerate if needed  |
-| **"API not found"**      | Verify Logseq version supports HTTP API        |
-| **Slow performance**     | Check network and increase timeout settings    |
+| Problem | Solution |
+|---------|----------|
+| **Connection Refused** | Ensure Logseq is running with HTTP API enabled |
+| **Unauthorized** | Check your API token and regenerate if needed |
+| **Slow Performance** | Increase timeout settings or check network connectivity |
+| **Template Errors** | Ensure templates are single blocks (Logseq requirement) |
 
-### 🐛 Debug Mode
+### Debug Mode
 
 ```bash
 # Enable debug logging
 DEBUG=1 logseq-mcp-server
 
-# Set log level
+# Set custom log level
 LOG_LEVEL=debug logseq-mcp-server
-
-# Check server health
-curl http://localhost:3000/health
 ```
 
-### 📋 Environment Variables
+### Environment Variables
 
 ```bash
-# Core Configuration
+# Core Configuration (Required)
 export LOGSEQ_API_URL="http://127.0.0.1:12315"
 export LOGSEQ_API_TOKEN="your-api-token-here"
 
-# Performance Tuning
+# Performance Tuning (Optional)
 export LOGSEQ_TIMEOUT="30000"           # 30 second timeout
 export LOGSEQ_MAX_RETRIES="5"           # 5 retry attempts
 
-# Security Settings
-export RATE_LIMIT_MAX="200"             # 200 requests per minute
-export RATE_LIMIT_WINDOW="60000"        # 1 minute window
-
-# Logging
-export LOG_LEVEL="info"                 # Log level
-export NODE_ENV="production"            # Environment
+# Logging (Optional)
+# Default: 'error' in production or when NODE_ENV is unset; 'info' in development
+# Override to increase verbosity when needed:
+# export LOG_LEVEL="info"                 # e.g., operational logs in prod
+export NODE_ENV="production"            # Environment mode
 ```
 
-## 🏗️ Development
+## 📚 Documentation
 
-### 🚀 Getting Started
+- **[API Reference](docs/API.md)** - Complete tool documentation with examples
+- **[Configuration Guide](docs/CONFIGURATION.md)** - Detailed setup and customization options
+- **[Changelog](CHANGELOG.md)** - Version history and release notes
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how to get started:
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Make** your changes with tests
+4. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+5. **Push** to the branch (`git push origin feature/amazing-feature`)
+6. **Open** a Pull Request
+
+### Development Setup
 
 ```bash
 # Clone the repository
-git clone https://github.com/eugeneyvt/logseq-ai
-cd logseq-ai
+git clone https://github.com/eugeneyvt/logseq-mcp-server
+cd logseq-mcp-server
 
 # Install dependencies
 npm install
 
 # Set up environment
 cp .env.example .env
-# Edit .env with your configuration
+# Edit .env with your Logseq configuration
 
-# Start development server
+# Start development
 npm run dev
 
 # Run tests
@@ -488,144 +637,11 @@ npm test
 npm run build
 ```
 
-### 📁 Project Structure
+## 🌟 Community
 
-```
-src/
-├── index.ts              # Main server entry point
-├── handlers/             # Request handlers and core methods
-│   ├── block-handlers.ts # Block operations (append_blocks, update_block, move_block)
-│   ├── page-handlers.ts  # Page operations (ensure_page, get_page, set_page_content)
-│   ├── graph-handlers.ts # Graph operations (search, build_graph_map, suggest_placement)
-│   ├── search-handlers.ts # Enhanced search with templates, properties, relations, dates
-│   ├── template-handlers.ts # Template operations and variable substitution
-│   ├── relation-handlers.ts # Relationship management and graph analysis
-│   ├── system-handlers.ts # System information and health checks
-│   └── core-methods.ts   # Core MCP method definitions
-├── utils/                # Core utilities and helpers
-│   ├── markdown-parser.ts # Enhanced markdown parser with Logseq syntax support
-│   ├── block-creator.ts  # Block creation utilities with hierarchy management
-│   ├── formatting/       # Content formatting and validation
-│   ├── security/         # Security utilities and input validation
-│   ├── monitoring/       # Performance monitoring and metrics
-│   ├── cache.ts          # Intelligent caching system
-│   └── logger.ts         # Structured logging with sensitive data redaction
-├── schemas/              # Schema definitions and validation
-├── tools/                # MCP tool implementations
-├── client/               # Logseq API client with connection management
-├── types/                # TypeScript type definitions
-└── errors/               # Error handling and definitions
-```
-
-### 🧪 Testing
-
-```bash
-# Run all tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run specific test suites
-npm run test:unit
-npm run test:integration
-
-# Generate coverage report
-npm run test:coverage
-```
-
-### 🧪 Comprehensive Testing Guide
-
-Test all the new capabilities with these comprehensive prompts:
-
-#### **Template System Testing**
-
-```
-"List all templates available in my graph"
-"Find and show me the structure of my 'Meeting Template'"
-"Apply the 'Daily Review Template' to a new page called 'Review 2024-01-15' with variables: date='2024-01-15', team='Engineering', project='AI Integration'"
-"Create a new page using the 'Project Template' with project name 'Website Redesign' and deadline 'March 1st'"
-```
-
-#### **Advanced Search Testing**
-
-```
-"Find all pages with status=open AND created in the last week"
-"Show me all templates OR pages with type=template"
-"Find pages that have priority=high AND are NOT archived"
-"List all project pages OR pages that link to 'Project Management'"
-"Find empty pages OR pages with status=draft"
-```
-
-#### **Relationship Management Testing**
-
-```
-"Find all pages that link to 'Important Concept'"
-"Show me all references (links and mentions) to 'Research Topic'"
-"Create a bi-directional link between 'Frontend Design' and 'User Experience' with link text 'influences'"
-"Analyze the relationship structure around the page 'Central Topic'"
-"Show me the graph structure and most connected pages"
-```
-
-#### **Property Management Testing**
-
-```
-"Show me all properties for the page 'Project Alpha'"
-"Find all pages that have status=open"
-"Set the status property to 'completed' for the page 'Task 1'"
-"Add properties priority=high and due_date=2024-02-01 to page 'Important Task'"
-"Find all pages that have a priority property set to 'urgent'"
-```
-
-#### **Complex Workflow Testing**
-
-```
-"Find all project templates, then apply the best one to create 'Q2 Marketing Campaign' with variables: quarter='Q2', team='Marketing', budget='50k'"
-"Search for all open tasks AND create relationships between them and 'Current Sprint'"
-"Find all empty meeting pages OR pages tagged as 'incomplete' AND add a 'needs-review' property"
-"Create a comprehensive overview of 'Product Development' including all backlinks, outgoing links, and related pages"
-```
-
-## 🤝 Contributing
-
-We welcome contributions! Here's how to get started:
-
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Make** your changes
-4. **Add** tests for new functionality
-5. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-6. **Push** to the branch (`git push origin feature/amazing-feature`)
-7. **Open** a Pull Request
-
-### 🎯 Contribution Areas
-
-- **New MCP Tools**: Add functionality for specific Logseq operations
-- **Performance Improvements**: Optimize caching, queries, and error handling
-- **Documentation**: Improve examples, tutorials, and API documentation
-- **Testing**: Add test coverage and integration tests
-- **UI/UX**: Enhance user experience and error messages
-
-## 📚 Additional Resources
-
-### 📖 Documentation
-
-- **[API Reference](API.md)** - Complete tool documentation
-- **[Configuration Guide](CONFIGURATION.md)** - Detailed setup instructions
-- **[Development Roadmap](ROADMAP.md)** - Future development plans
-- **[Changelog](CHANGELOG.md)** - Version history and updates
-
-### 🔗 Related Links
-
-- **[Model Context Protocol](https://modelcontextprotocol.io/)** - MCP specification
-- **[Logseq Documentation](https://docs.logseq.com/)** - Logseq API reference
-- **[MCP SDK](https://github.com/modelcontextprotocol/sdk)** - Development toolkit
-
-### 💬 Community
-
-- **GitHub Issues**: [Report bugs and request features](https://github.com/eugeneyvt/logseq-ai/issues)
-- **GitHub Discussions**: [Ask questions and share ideas](https://github.com/eugeneyvt/logseq-ai/discussions)
-- **GitHub Wiki**: [Community documentation and guides](https://github.com/eugeneyvt/logseq-ai/wiki)
+- **GitHub Issues**: [Report bugs and request features](https://github.com/eugeneyvt/logseq-mcp-server/issues)
+- **GitHub Discussions**: [Ask questions and share ideas](https://github.com/eugeneyvt/logseq-mcp-server/discussions)
+- **Documentation**: [Comprehensive guides and examples](https://github.com/eugeneyvt/logseq-mcp-server/wiki)
 
 ## 📄 License
 
@@ -636,17 +652,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Built with the **[Model Context Protocol SDK](https://github.com/modelcontextprotocol/sdk)**
 - Powered by **[Logseq's HTTP API](https://docs.logseq.com/)**
 - Inspired by the growing ecosystem of AI-powered knowledge management tools
-- Special thanks to the Logseq community and contributors
+- Special thanks to the Logseq community for their continuous feedback and support
 
 ---
 
 <div align="center">
 
-**Made with ❤️ for the Logseq community**
+**Transform your Logseq knowledge base into an AI-powered workspace**
 
-[![GitHub stars](https://img.shields.io/github/stars/eugeneyvt/logseq-ai?style=social)](https://github.com/eugeneyvt/logseq-ai/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/eugeneyvt/logseq-ai?style=social)](https://github.com/eugeneyvt/logseq-ai/network/members)
-[![GitHub issues](https://img.shields.io/github/issues/eugeneyvt/logseq-ai)](https://github.com/eugeneyvt/logseq-ai/issues)
-[![GitHub pull requests](https://img.shields.io/github/issues-pr/eugeneyvt/logseq-ai)](https://github.com/eugeneyvt/logseq-ai/pulls)
+[![npm](https://img.shields.io/npm/v/logseq-mcp-server?color=blue)](https://www.npmjs.com/package/logseq-mcp-server)
+[![GitHub stars](https://img.shields.io/github/stars/eugeneyvt/logseq-mcp-server?style=social)](https://github.com/eugeneyvt/logseq-mcp-server/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/eugeneyvt/logseq-mcp-server)](https://github.com/eugeneyvt/logseq-mcp-server/issues)
 
 </div>

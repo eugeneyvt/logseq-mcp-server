@@ -1,4 +1,11 @@
-import { ValidationError } from '../../errors/index.js';
+
+// Simple ValidationError class
+class ValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ValidationError';
+  }
+}
 
 /**
  * Content Security Policy headers for HTTP responses

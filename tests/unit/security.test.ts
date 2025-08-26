@@ -1,0 +1,294 @@
+import { describe, it, expect } from 'vitest';
+import {
+  sanitizeString,
+  validatePageName,
+  validateUUID,
+  validateBlockContent,
+  validateDataScriptQuery,
+  validatePropertyKey,
+  validateSearchQuery,
+  checkRateLimit,
+  validateApiToken,
+  sanitizeErrorMessage,
+  validateConfig,
+} from '../../src/utils/security.js';
+
+describe('Security utilities', () => {
+  describe('sanitizeString', () => {
+    it('should sanitize HTML characters', () => {
+      const input = '<script>alert("xss")</script>';
+      const result = sanitizeString(input);
+      expect(result).toBe('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;');
+    });
+
+    it('should trim whitespace', () => {
+      const input = '  hello world  ';
+      const result = sanitizeString(input);
+      expect(result).toBe('hello world');
+    });
+
+    it('should throw error for non-string input', () => {
+      expect(() => sanitizeString(123 as any)).toThrow();
+    });
+
+    it('should throw error for input exceeding max length', () => {
+      const longInput = 'a'.repeat(100);
+      expect(() => sanitizeString(longInput, 50)).toThrow();
+    });
+
+    it('should handle empty string', () => {
+      expect(sanitizeString('')).toBe('');
+    });
+
+    it('should handle special characters', () => {
+      const input = `Test & "quotes" & 'apostrophes'`;
+      const result = sanitizeString(input);
+      expect(result).toBe('Test &amp; &quot;quotes&quot; &amp; &#39;apostrophes&#39;');
+    });
+  });
+
+  describe('validatePageName', () => {
+    it('should validate normal page names', () => {
+      expect(validatePageName('My Page')).toBe('My Page');
+      expect(validatePageName('Page-123')).toBe('Page-123');
+      expect(validatePageName('Page_with_underscores')).toBe('Page_with_underscores');
+    });
+
+    it('should reject invalid characters', () => {
+      expect(() => validatePageName('page<test')).toThrow();
+      expect(() => validatePageName('page>test')).toThrow();
+      expect(() => validatePageName('page:test')).toThrow();
+      // Forward slashes are now supported for nested pages
+      expect(validatePageName('page/test')).toBe('page/test');
+      expect(() => validatePageName('page\\test')).toThrow();
+      expect(() => validatePageName('page|test')).toThrow();
+      expect(() => validatePageName('page?test')).toThrow();
+      expect(() => validatePageName('page*test')).toThrow();
+    });
+
+    it('should reject reserved names', () => {
+      expect(() => validatePageName('CON')).toThrow();
+      expect(() => validatePageName('con')).toThrow();
+      expect(() => validatePageName('PRN')).toThrow();
+      expect(() => validatePageName('COM1')).toThrow();
+    });
+
+    it('should reject empty names', () => {
+      expect(() => validatePageName('')).toThrow();
+      expect(() => validatePageName('   ')).toThrow();
+    });
+  });
+
+  describe('validateUUID', () => {
+    it('should validate correct UUIDs', () => {
+      const uuid = '550e8400-e29b-41d4-a716-446655440000';
+      expect(validateUUID(uuid)).toBe(uuid);
+    });
+
+    it('should convert to lowercase', () => {
+      const uuid = '550E8400-E29B-41D4-A716-446655440000';
+      expect(validateUUID(uuid)).toBe(uuid.toLowerCase());
+    });
+
+    it('should reject invalid UUIDs', () => {
+      expect(() => validateUUID('invalid-uuid')).toThrow();
+      expect(() => validateUUID('550e8400-e29b-41d4-a716')).toThrow();
+      expect(() => validateUUID('550e8400-e29b-41d4-a716-44665544000')).toThrow();
+      expect(() => validateUUID('')).toThrow();
+    });
+  });
+
+  describe('validateBlockContent', () => {
+    it('should validate normal content', () => {
+      const content = 'This is normal block content with **markdown**.';
+      expect(validateBlockContent(content)).toBe(content);
+    });
+
+    it('should reject script content', () => {
+      expect(() => validateBlockContent('<script>alert("xss")</script>')).toThrow();
+      expect(() => validateBlockContent('javascript:void(0)')).toThrow();
+      expect(() => validateBlockContent('data:text/html,<script>alert(1)</script>')).toThrow();
+    });
+
+    it('should handle long content', () => {
+      const longContent = 'a'.repeat(1000);
+      expect(validateBlockContent(longContent)).toBe(longContent);
+    });
+
+    it('should reject extremely long content', () => {
+      const tooLongContent = 'a'.repeat(100000);
+      expect(() => validateBlockContent(tooLongContent)).toThrow();
+    });
+  });
+
+  describe('validateDataScriptQuery', () => {
+    it('should validate correct DataScript queries', () => {
+      const query = '[:find ?b :where [?b :block/content ?content]]';
+      expect(validateDataScriptQuery(query)).toBe(query);
+    });
+
+    it('should reject queries without :find', () => {
+      const query = '[?b :where [?b :block/content ?content]]';
+      expect(() => validateDataScriptQuery(query)).toThrow();
+    });
+
+    it('should reject queries not starting with [', () => {
+      const query = ':find ?b :where [?b :block/content ?content]';
+      expect(() => validateDataScriptQuery(query)).toThrow();
+    });
+
+    it('should reject dangerous patterns', () => {
+      expect(() => validateDataScriptQuery('[:find ?b :where eval(malicious)]')).toThrow();
+      expect(() => validateDataScriptQuery('[:find ?b :where function(attack)]')).toThrow();
+      expect(() => validateDataScriptQuery('[:find ?b :where ${injection}]')).toThrow();
+      expect(() => validateDataScriptQuery('[:find ?b :where javascript:attack]')).toThrow();
+      expect(() => validateDataScriptQuery('[:find ?b :where <script>]')).toThrow();
+    });
+  });
+
+  describe('validatePropertyKey', () => {
+    it('should validate correct property keys', () => {
+      expect(validatePropertyKey('propertyName')).toBe('propertyName');
+      expect(validatePropertyKey('property_name')).toBe('property_name');
+      expect(validatePropertyKey('property-name')).toBe('property-name');
+      expect(validatePropertyKey('property123')).toBe('property123');
+    });
+
+    it('should reject invalid property keys', () => {
+      expect(() => validatePropertyKey('123property')).toThrow();
+      expect(() => validatePropertyKey('property name')).toThrow();
+      expect(() => validatePropertyKey('property.name')).toThrow();
+      expect(() => validatePropertyKey('property@name')).toThrow();
+    });
+
+    it('should reject empty property keys', () => {
+      expect(() => validatePropertyKey('')).toThrow();
+    });
+  });
+
+  describe('validateSearchQuery', () => {
+    it('should validate normal search queries', () => {
+      expect(validateSearchQuery('search term')).toBe('search term');
+      expect(validateSearchQuery('single')).toBe('single');
+    });
+
+    it('should allow quoted strings with special characters', () => {
+      expect(validateSearchQuery('"search with [special] characters"')).toBe(
+        '"search with [special] characters"'
+      );
+    });
+
+    it('should reject unquoted regex characters', () => {
+      expect(() => validateSearchQuery('search[term]')).toThrow();
+      expect(() => validateSearchQuery('search*')).toThrow();
+      expect(() => validateSearchQuery('search+')).toThrow();
+    });
+
+    it('should reject empty queries', () => {
+      expect(() => validateSearchQuery('')).toThrow();
+      expect(() => validateSearchQuery('   ')).toThrow();
+    });
+  });
+
+  describe('checkRateLimit', () => {
+    it('should return boolean for rate limit check', () => {
+      const result = checkRateLimit('client1', 5, 60000);
+      expect(typeof result).toBe('boolean');
+    });
+
+    it('should allow requests by default (simplified implementation)', () => {
+      const result1 = checkRateLimit('client1', 5, 60000);
+      expect(result1).toBe(true);
+
+      const result2 = checkRateLimit('client2', 10, 30000);
+      expect(result2).toBe(true);
+    });
+
+    it('should handle different client keys', () => {
+      const result1 = checkRateLimit('client-a');
+      const result2 = checkRateLimit('client-b');
+      
+      expect(result1).toBe(true);
+      expect(result2).toBe(true);
+    });
+  });
+
+  describe('validateApiToken', () => {
+    it('should validate correct tokens', () => {
+      expect(validateApiToken('abcd1234-efgh-5678')).toBe(true);
+      expect(validateApiToken('token_with_underscores')).toBe(true);
+      expect(validateApiToken('token.with.dots')).toBe(true);
+      expect(validateApiToken('a'.repeat(32))).toBe(true);
+    });
+
+    it('should reject invalid tokens', () => {
+      expect(validateApiToken('token with spaces')).toBe(false);
+      expect(validateApiToken('token@invalid')).toBe(false);
+      expect(validateApiToken('short')).toBe(false);
+      expect(validateApiToken('')).toBe(false);
+    });
+  });
+
+  describe('sanitizeErrorMessage', () => {
+    it('should remove file paths', () => {
+      const error = new Error('Error in /home/user/project/file.js');
+      const result = sanitizeErrorMessage(error);
+      expect(result).toBe('Error in [PATH]');
+    });
+
+    it('should remove IP addresses', () => {
+      const error = new Error('Connection failed to 192.168.1.1');
+      const result = sanitizeErrorMessage(error);
+      expect(result).toBe('Connection failed to [IP]');
+    });
+
+    it('should remove email addresses', () => {
+      const error = new Error('User user@example.com not found');
+      const result = sanitizeErrorMessage(error);
+      expect(result).toBe('User [EMAIL] not found');
+    });
+
+    it('should remove potential hashes', () => {
+      const error = new Error('Token abc123def456 is invalid');
+      const result = sanitizeErrorMessage(error);
+      expect(result).toBe('Token [HASH] is invalid');
+    });
+
+    it('should handle non-Error objects', () => {
+      const result = sanitizeErrorMessage('some error string');
+      expect(result).toBe('An error occurred');
+    });
+  });
+
+  describe('validateConfig', () => {
+    it('should validate secure configurations', () => {
+      const config = {
+        apiUrl: 'https://localhost:12315',
+        debug: false,
+      };
+      expect(() => validateConfig(config)).not.toThrow();
+    });
+
+    it('should reject insecure HTTP URLs in production', () => {
+      const config = {
+        apiUrl: 'http://example.com:12315',
+      };
+      expect(() => validateConfig(config)).toThrow();
+    });
+
+    it('should allow HTTP for localhost', () => {
+      const configs = [{ apiUrl: 'http://localhost:12315' }, { apiUrl: 'http://127.0.0.1:12315' }];
+
+      configs.forEach((config) => {
+        expect(() => validateConfig(config)).not.toThrow();
+      });
+    });
+
+    it('should not throw on debug mode (warnings handled by caller)', () => {
+      const config = { debug: true };
+
+      // Debug mode warnings are now handled by the caller, not the validation function
+      expect(() => validateConfig(config)).not.toThrow();
+    });
+  });
+});

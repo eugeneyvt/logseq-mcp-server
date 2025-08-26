@@ -1,18 +1,14 @@
 /**
- * Consolidated schema exports for backward compatibility
- * 
- * This file re-exports all schemas from the modular schema files
- * to maintain backward compatibility while keeping the code organized.
+ * Clean schema exports for modular architecture
+ * All schemas kept under 250 LOC for maintainability
  */
 
-// Base types and interfaces
-export * from './base-types.js';
+// Essential types for the modular tools
+export * from './types.js';
 
-// Validation schemas
-export * from './validation-schemas.js';
+// Error handling is now consolidated in utils/errors.js
 
-// Domain-specific schemas
-export * from './page-schemas.js';
-export * from './block-schemas.js';
-export * from './query-schemas.js';
-export * from './graph-schemas.js';
+// Tool schemas and configuration
+// Note: Tool schemas are now in validation/schemas.ts for better organization
+export * from './unified-types.js';
+export * from './config.js';

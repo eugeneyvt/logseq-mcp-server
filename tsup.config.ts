@@ -13,5 +13,8 @@ export default defineConfig({
   splitting: false,
   esbuildOptions: (options) => {
     options.conditions = ['node'];
+    options.banner = {
+      js: '#!/usr/bin/env node',
+    };
   },
 });

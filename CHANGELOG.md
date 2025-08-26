@@ -5,7 +5,153 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.4] - 2025-01-20
+## [1.0.0-beta.1] - 2025-08-25
+
+### 🚀 **BETA RELEASE**
+
+First public beta release of the Logseq MCP server with unified 4-tool architecture.
+
+#### **✨ Features**
+
+- **4-Tool Unified Architecture**: Search, Get, Edit, Delete tools for intuitive AI interaction
+- **Advanced Search**: Multi-modal discovery with templates, properties, relations, date filters  
+- **Template System**: Single-block enforcement with variable substitution
+- **Enterprise Safety**: Idempotency controls, dry-run mode, confirmation prompts
+- **Production Ready**: Caching, monitoring, security, error handling
+- **Universal Compatibility**: Works with Claude Desktop, VS Code, Cursor, Windsurf, and more
+
+#### **🛡️ Security & Privacy**
+
+- **Local-Only Operations**: No data transmission to external servers
+- **Input Sanitization**: Comprehensive validation of all user inputs
+- **Token Security**: API tokens never logged or exposed
+- **Rate Limiting**: Protection against abuse with configurable limits
+
+#### **📊 Performance**
+
+- **Intelligent Caching**: 3-5 minute TTL for different content types
+- **Connection Pooling**: Efficient HTTP request management  
+- **Cursor-Based Pagination**: Handle large result sets (up to 100 items)
+- **Automatic Retry**: Exponential backoff for reliability
+
+#### **🔧 Developer Experience**
+
+- **Simple Installation**: `npm install -g logseq-mcp-server`
+- **Zero Configuration**: Works with just API credentials
+- **Comprehensive Documentation**: Complete API reference and configuration guide
+- **Multiple Client Support**: Easy setup for all major MCP clients
+
+---
+
+## [2.0.0] - 2025-08-20 [INTERNAL]
+
+### 🚀 **MAJOR UPDATE**: Complete 4-Tool Unified Architecture
+
+This is a **breaking change** that completely redesigns the Logseq MCP Server to address fundamental usability issues and provide a much more intuitive experience for AI models and developers.
+
+#### **🔥 Breaking Changes**
+
+- **Complete API Redesign**: Replaced 15+ confusing micro-tools with 4 clear action verbs
+- **Tool Selection Simplified**: Search/Get/Edit/Delete architecture dramatically improves AI tool selection accuracy
+- **New Parameter Structure**: All tools now use consistent, type-safe parameters with validation
+- **Enhanced Error Handling**: Structured error codes with actionable hints replace generic messages
+- **Template System Overhaul**: Single-block enforcement with proper variable substitution
+- **Advanced Search**: Multi-modal discovery with sophisticated filtering replaces basic text search
+
+#### **✨ New 4-Tool Architecture**
+
+##### **🔍 Search Tool** - Advanced Discovery
+- Multi-modal search across pages, blocks, templates, tasks, and properties
+- Sophisticated filtering: `property:status=open AND date:last-week`
+- Template discovery: `templates:*`, `template:"Meeting Template"`
+- Relationship analysis: `backlinks:"Important Topic"`, `references:"Research Topic"`
+- Date-based queries: `date:today`, `date:last-week`, `date:last-month`
+- Combined filters with AND/OR/NOT logic
+- Cursor-based pagination (100 items max per request)
+
+##### **📖 Get Tool** - Unified Content Retrieval
+- Retrieve pages, blocks, templates, properties, relations, tasks, system info, graph data
+- Include options: children, properties, backlinks, outgoing links, content previews
+- Format control: tree vs flat representation for hierarchical content
+- Depth control for relationship and hierarchy traversal
+- Comprehensive metadata with graph metrics and relationship analysis
+
+##### **✏️ Edit Tool** - Content Creation & Modification
+- Create, update, append, prepend, move content across all Logseq types
+- Type+operation validation with helpful error messages
+- Template single-block enforcement (major template system fix)
+- Variable substitution for template insertion
+- Position control for precise content placement
+- Dry-run mode and idempotency keys for safe operations
+
+##### **🗑️ Delete Tool** - Safe Content Removal
+- Comprehensive safety controls with `confirmDestroy: true` requirement
+- Impact analysis showing dependencies and orphaned references
+- Cascade deletion with dependency tracking
+- Soft delete option (move to trash instead of permanent deletion)
+- Simulation mode to preview deletions
+
+#### **🎯 Key Improvements**
+
+##### **AI Model Experience**
+- **75% reduction in tool selection complexity** (15+ tools → 4 tools)
+- **Clear action verbs** instead of confusing method names
+- **Obvious tool selection**: "I want to create something" → Edit tool
+- **Helpful error messages** when wrong combinations are used
+- **Consistent parameter patterns** across all operations
+
+##### **Template System Reliability**
+- **Single-block templates** (Logseq standard compliance)
+- **Proper template insertion** as blocks, not page replacement
+- **Clear creation vs insertion** distinction
+- **Better integration** with search functionality
+- **Variable substitution** with validation
+
+##### **Developer Experience**
+- **Consistent patterns** across all operations
+- **Extensible design** - easy to add new content types
+- **Type safety** with comprehensive validation
+- **Production-ready** with idempotency, pagination, error handling
+- **Comprehensive documentation** with real-world examples
+
+#### **🛡️ Enhanced Safety & Reliability**
+
+- **Idempotency controls** prevent duplicate operations
+- **Dry-run mode** for testing operations without execution
+- **Confirmation requirements** for destructive operations
+- **Structured error handling** with actionable hints
+- **Input validation** and sanitization
+- **Rate limiting** and performance controls
+- **Atomic operations** with rollback support
+
+#### **📊 Performance & Scalability**
+
+- **Cursor-based pagination** replaces offset-based pagination
+- **Hard limits** (100 items max per request) for stability
+- **Content truncation** (3-5k chars) for performance
+- **Intelligent caching** with TTL-based invalidation
+- **Connection pooling** and retry logic
+- **Batch processing** capabilities
+
+#### **🔧 Technical Architecture**
+
+- **Unified handlers**: `search-tool.ts`, `get-tool.ts`, `edit-tool.ts`, `delete-tool.ts`
+- **Structured schemas**: `unified-types.ts`, `tool-schemas.ts`, `error-codes.ts`
+- **Advanced markdown parser** with Logseq syntax preservation
+- **Comprehensive validation** and type safety
+- **Modular design** for maintainability and extensibility
+
+#### **📚 Documentation Updates**
+
+- **Complete README overhaul** with new architecture examples
+- **New API documentation** reflecting 4-tool structure
+- **Configuration guide** with advanced features
+- **Migration examples** for existing users
+- **Real-world scenarios** with tool combinations
+
+---
+
+## [1.0.4] - 2025-08-20
 
 ### 🚀 Complete Knowledge Graph Management - Major Feature Enhancement
 
@@ -71,9 +217,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.0.3] - 2025-01-20
-
-## [1.0.3] - 2025-01-20
+## [1.0.3] - 2025-08-20
 
 ### 🚀 Enhanced Markdown Parser - Major Architecture Improvement
 
@@ -122,7 +266,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.0.2] - 2025-01-20
+## [1.0.2] - 2025-08-20
 
 ### 🚀 Core Methods Architecture - Major Enhancement
 

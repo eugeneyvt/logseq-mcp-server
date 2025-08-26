@@ -1,7 +1,7 @@
 {
-  "name": "logseq-ai",
-  "version": "1.0.4",
-  "description": "Model Context Protocol server for Logseq - enables AI assistants to interact with your Logseq knowledge base",
+  "name": "logseq-mcp-server",
+  "version": "1.0.0-beta.1",
+  "description": "Logseq Model Context Protocol server - enables AI assistants to seamlessly interact with your Logseq knowledge base",
   "main": "dist/index.js",
   "type": "module",
   "bin": {
@@ -14,6 +14,12 @@
     "start": "node dist/index.js",
     "test": "vitest",
     "test:ci": "vitest --run",
+    "test:watch": "vitest --watch",
+    "test:unit": "vitest tests/unit",
+    "test:e2e": "node tests/e2e/test-e2e-comprehensive.js",
+    "test:e2e-integration": "node tests/e2e/run-e2e-tests.js",
+    "test:all": "node tests/run-all-tests.js",
+    "test:coverage": "vitest --coverage",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write src/**/*.ts",
@@ -21,7 +27,7 @@
     "type-check": "tsc --noEmit",
     "prepublishOnly": "npm run build",
     "prepare": "husky install",
-    "ci": "npm run type-check && npm run lint && npm run test:ci && npm run build"
+    "ci": "npm run type-check && npm run lint && npm run build"
   },
   "keywords": [
     "logseq",
@@ -30,21 +36,29 @@
     "ai",
     "knowledge-base",
     "claude",
-    "anthropic"
+    "anthropic",
+    "notes",
+    "productivity",
+    "automation",
+    "graph",
+    "personal-knowledge-management",
+    "pkm"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/logseq-mcp-server"
+    "url": "https://github.com/eugeneyvt/logseq-mcp-server"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/logseq-mcp-server/issues"
+    "url": "https://github.com/eugeneyvt/logseq-mcp-server/issues"
   },
-  "homepage": "https://github.com/yourusername/logseq-mcp-server#readme",
+  "homepage": "https://github.com/eugeneyvt/logseq-mcp-server#readme",
   "files": [
     "dist/**/*",
     "README.md",
     "LICENSE",
+    "CHANGELOG.md",
+    "docs/*.md",
     "package.json"
   ],
   "engines": {

@@ -19,7 +19,7 @@ npm audit                  # Check for security vulnerabilities
 ## Code Quality & Maintainability Principles
 
 - **ALWAYS** use TypeScript with strict mode enabled
-- Prefer explicit types over `any` or `unknown` when possible
+- Prefer explicit types over `any` or `unknown`
 - Enforce consistent code style with ESLint + Prettier (or Biome)
 - Keep functions small and single-purpose (SRP)
 - Use clear naming for handlers, schemas, and RPC methods
@@ -27,7 +27,7 @@ npm audit                  # Check for security vulnerabilities
 - Document public methods and exported types with JSDoc
 - Use named functional components only
 - Place hooks above JSX
-- Split components >200 LOC
+- Split components >250 LOC
 - Avoid `useEffect` unless truly needed
 - Use `memo`/`useCallback`/`useMemo` only when necessary
 
@@ -94,15 +94,31 @@ npm audit                  # Check for security vulnerabilities
 
 ## Logseq AI MCP Server Specific Principles
 
+### Unified 4-Tool Architecture
+
+The server uses a revolutionary **4-tool unified architecture** that dramatically simplifies AI tool selection:
+
+- **🔍 Search Tool**: Advanced multi-modal search with sophisticated filtering and pagination
+- **📖 Get Tool**: Unified content retrieval with full details and context
+- **✏️ Edit Tool**: Content creation, modification, and movement with template fixes
+- **🗑️ Delete Tool**: Safe content removal with impact analysis and confirmation
+
 ### General Design Principles
 
-- **IMPORTANT**: Always design for **minimum number of calls** and **maximum precision**
-- Prefer **UUID-based operations** for blocks and tasks
-- **YOU MUST** enforce `dryRun`, `strict`, `idempotencyKey`, `maxOps`, and `autofixFormat` controls
-- Use **batch/atomic** operations and **macros** to collapse multi-step flows into one
+- **IMPORTANT**: Design for **4 clear action verbs** (Search/Get/Edit/Delete) instead of 15+ confusing micro-tools
+- **ALWAYS** enforce **single-block template rule** - templates MUST be single blocks only
+- **YOU MUST** enforce `dryRun`, `strict`, `idempotencyKey`, `maxOps`, `autofixFormat`, and `confirmDestroy` controls
+- Use **type+operation validation** with helpful error messages and compatibility matrix
 - Validate and normalize all content before writing; reject or auto-fix invalid Logseq formatting
 - **NEVER** create orphan pages; always suggest placement based on existing graph structure
-- Provide clear, consistent error codes (`NOT_FOUND`, `VALIDATION_ERROR`, `CONFLICT`, `LIMIT_EXCEEDED`, `BAD_QUERY`, `INTERNAL`) with hints
+- Provide clear, consistent error codes (`NOT_FOUND`, `VALIDATION_ERROR`, `INVALID_COMBINATION`, `LIMIT_EXCEEDED`, `BAD_QUERY`, `INTERNAL`) with hints
+
+### Template System Rules
+
+- **Single-Block Enforcement**: Templates MUST be created as single blocks only (Logseq standard)
+- **Automatic Validation**: Reject multi-block templates with clear error messages
+- **Proper Template Insertion**: Templates insert as single blocks, not page replacement
+- **Variable Substitution**: Support `{{variableName}}` placeholders with validation
 
 ### Error Handling
 
@@ -110,21 +126,58 @@ When implementing error handling, use these standardized error codes:
 
 - `NOT_FOUND`: Resource doesn't exist
 - `VALIDATION_ERROR`: Input validation failed
+- `INVALID_COMBINATION`: Incompatible type+operation combination
 - `CONFLICT`: Operation conflicts with existing state
 - `LIMIT_EXCEEDED`: Operation exceeds configured limits
 - `BAD_QUERY`: Query syntax or logic is invalid
+- `TEMPLATE_INVALID`: Template format or structure invalid
+- `GRAPH_CONSISTENCY`: Graph integrity violation
 - `INTERNAL`: Internal server error
 
-### Code Organization
+### Entity-Driven Architecture (MANDATORY)
 
+**Current Structure:**
 ```
 /src
-  /handlers     # RPC method handlers
-  /schemas      # Zod validation schemas
-  /utils        # Utility functions
-  /tests        # Test files
-  /types        # TypeScript type definitions
+  /entities/        # Domain entities (blocks, pages, properties, relations, system, tasks, templates)
+  /tools/           # 4-tool implementation (search, get, edit, delete) 
+  /parsers/         # Content parsing (blocks, pages, tasks, templates)
+  /router/          # Request routing and dispatch
+  /validation/      # Zod schemas and validation helpers
+  /utils/           # Cross-cutting utilities (security, performance, system)
+  /schemas/         # Type definitions
+  /adapters/        # External integrations (Logseq client)
 ```
+
+**Architecture Rules:**
+- **Entities**: ALL business logic, data validation, Logseq API calls, caching, domain operations
+- **Tools**: ONLY request/response formatting, parameter validation, entity orchestration
+- **No Duplication**: Tools must delegate to entities, never implement business logic
+- **Clear Boundaries**: Entities = domain logic, Tools = protocol adaptation
+- **Performance**: PerformanceAwareLogseqClient + monitoring in entities only
+- **File Size**: Keep files <250 LOC, split when needed
+
+**Mandatory Tool/Entity Boundaries:**
+
+**ENTITIES MUST HAVE:**
+- All domain-specific business logic
+- Direct Logseq API interactions  
+- Data validation and sanitization
+- Error handling with domain context
+- Caching and performance optimization
+- CRUD operations for their domain
+
+**TOOLS MUST ONLY HAVE:**
+- Request parameter validation (format only)
+- Response formatting and structure
+- Entity orchestration (calling multiple entities)
+- MCP protocol adaptation
+- NO business logic, NO direct Logseq API calls
+
+**FORBIDDEN:**
+- Business logic in tools
+- Direct Logseq API calls in tools
+- Duplicate functionality between tools and entities
 
 ## Project Structure
 
