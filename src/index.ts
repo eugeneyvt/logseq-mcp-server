@@ -36,7 +36,7 @@ class LogseqMcpServer {
     this.server = new Server(
       {
         name: 'logseq-mcp',
-        version: '1.0.0-beta.2',
+        version: '1.0.0-beta.3',
       },
       {
         capabilities: {
@@ -154,7 +154,7 @@ class LogseqMcpServer {
    */
   async run(): Promise<void> {
     // Test connection on startup
-    logger.info('Starting Logseq MCP Server v1.0.0-beta.2...');
+    logger.info('Starting Logseq MCP Server v1.0.0-beta.3...');
 
     // Check if API token is provided
     if (!this.client.apiToken) {
@@ -224,7 +224,9 @@ async function main(): Promise<void> {
 
 // Only run if this file is executed directly
 const __filename = fileURLToPath(import.meta.url);
-if (process.argv[1] === __filename) {
+const isMainModule = process.argv[1] === __filename || process.argv[1]?.endsWith('index.js');
+
+if (isMainModule) {
   main().catch((error) => {
     logger.fatal({ error: sanitizeErrorForLogging(error) }, 'Server crashed');
     process.exit(1);
