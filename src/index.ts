@@ -3,7 +3,11 @@ import { fileURLToPath } from 'url';
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import {
+  CallToolRequestSchema,
+  ListToolsRequestSchema,
+  InitializeRequestSchema,
+} from '@modelcontextprotocol/sdk/types.js';
 
 import {
   createErrorResponse,
@@ -36,7 +40,7 @@ class LogseqMcpServer {
     this.server = new Server(
       {
         name: 'logseq-mcp',
-        version: '1.0.0-beta.3',
+        version: '1.0.0-beta.4',
       },
       {
         capabilities: {
@@ -79,6 +83,24 @@ class LogseqMcpServer {
    * Set up request handlers for the MCP server
    */
   private setupHandlers(): void {
+    // Initialize handler - required for MCP protocol
+    this.server.setRequestHandler(InitializeRequestSchema, async (request) => {
+      logger.info('Handling initialize request', {
+        protocolVersion: request.params.protocolVersion,
+      });
+
+      return {
+        protocolVersion: '2024-11-05',
+        capabilities: {
+          tools: {},
+        },
+        serverInfo: {
+          name: 'logseq-mcp',
+          version: '1.0.0-beta.4',
+        },
+      };
+    });
+
     // List tools handler
     this.server.setRequestHandler(ListToolsRequestSchema, async () => {
       logger.debug('Handling list tools request');
@@ -154,7 +176,7 @@ class LogseqMcpServer {
    */
   async run(): Promise<void> {
     // Test connection on startup
-    logger.info('Starting Logseq MCP Server v1.0.0-beta.3...');
+    logger.info('Starting Logseq MCP Server v1.0.0-beta.4...');
 
     // Check if API token is provided
     if (!this.client.apiToken) {
