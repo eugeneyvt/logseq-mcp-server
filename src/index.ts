@@ -36,7 +36,7 @@ class LogseqMcpServer {
     this.server = new Server(
       {
         name: 'logseq-mcp',
-        version: '1.0.0-beta.1',
+        version: '1.0.0-beta.2',
       },
       {
         capabilities: {
@@ -154,7 +154,7 @@ class LogseqMcpServer {
    */
   async run(): Promise<void> {
     // Test connection on startup
-    logger.info('Starting Logseq MCP Server v1.0.0-beta.1...');
+    logger.info('Starting Logseq MCP Server v1.0.0-beta.2...');
 
     // Check if API token is provided
     if (!this.client.apiToken) {
