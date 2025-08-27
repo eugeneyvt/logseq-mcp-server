@@ -25,6 +25,10 @@ export class LogseqClient {
     this.setupBasicInterceptors();
   }
 
+  get apiToken(): string {
+    return this.config.apiToken;
+  }
+
   private setupBasicInterceptors(): void {
     this.client.interceptors.request.use(
       (config) => {
@@ -43,10 +47,13 @@ export class LogseqClient {
         return response;
       },
       (error: AxiosError) => {
-        logger.error({ 
-          status: error.response?.status, 
-          message: error.message 
-        }, 'Response error');
+        logger.error(
+          {
+            status: error.response?.status,
+            message: error.message,
+          },
+          'Response error'
+        );
         return Promise.reject(error);
       }
     );
@@ -59,7 +66,7 @@ export class LogseqClient {
     try {
       const response = await this.client.post('/api', {
         method,
-        args: params
+        args: params,
       });
 
       if (response.status !== 200) {

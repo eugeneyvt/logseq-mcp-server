@@ -29,17 +29,14 @@ describe('ConfigSchema', () => {
     }
   });
 
-  it('should reject empty API token', () => {
-    const invalidConfig = {
+  it('should allow empty API token', () => {
+    const validConfig = {
       apiUrl: 'http://127.0.0.1:12315',
       apiToken: '',
     };
 
-    const result = ConfigSchema.safeParse(invalidConfig);
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.errors[0]?.message).toContain('API token is required');
-    }
+    const result = ConfigSchema.safeParse(validConfig);
+    expect(result.success).toBe(true);
   });
 
   it('should reject invalid API token characters', () => {
@@ -56,12 +53,11 @@ describe('ConfigSchema', () => {
   });
 
   it('should apply default values', () => {
-    const minimalConfig = {
-      apiToken: 'valid-token-123',
-    };
+    const minimalConfig = {};
 
     const result = ConfigSchema.parse(minimalConfig);
     expect(result.apiUrl).toBe('http://127.0.0.1:12315');
+    expect(result.apiToken).toBe('');
     expect(result.timeout).toBe(10000);
     expect(result.maxRetries).toBe(3);
     expect(result.debug).toBe(false);
@@ -94,10 +90,11 @@ describe('loadConfig', () => {
     expect(config.debug).toBe(true);
   });
 
-  it('should throw error when API token is missing', () => {
+  it('should use empty string when API token is missing', () => {
     delete process.env['LOGSEQ_API_TOKEN'];
 
-    expect(() => loadConfig()).toThrow('Configuration validation failed');
+    const config = loadConfig();
+    expect(config.apiToken).toBe('');
   });
 });
 

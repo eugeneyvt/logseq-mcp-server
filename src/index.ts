@@ -5,7 +5,12 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 
-import { createErrorResponse, sanitizeErrorForLogging, createStructuredError, ErrorCode } from './utils/system/errors.js';
+import {
+  createErrorResponse,
+  sanitizeErrorForLogging,
+  createStructuredError,
+  ErrorCode,
+} from './utils/system/errors.js';
 import { formatError } from './utils/error-formatting.js';
 import { createSearchTool } from './tools/search/index.js';
 import { createGetTool } from './tools/get/index.js';
@@ -16,7 +21,6 @@ import { LogseqClient } from './logseq-client.js';
 import { logger } from './utils/system/logger.js';
 
 import type { Config } from './schemas/config.js';
-
 
 /**
  * Main MCP server class for Logseq integration
@@ -59,18 +63,13 @@ class LogseqMcpServer {
     const deleteTool = createDeleteTool(this.client);
 
     // Set up tools and handlers
-    this.allTools = [
-      searchTool.tool,
-      getTool.tool,
-      editTool.tool,
-      deleteTool.tool
-    ];
+    this.allTools = [searchTool.tool, getTool.tool, editTool.tool, deleteTool.tool];
 
     this.allHandlers = {
-      'search': searchTool.handler,
-      'get': getTool.handler,
-      'edit': editTool.handler,
-      'delete': deleteTool.handler
+      search: searchTool.handler,
+      get: getTool.handler,
+      edit: editTool.handler,
+      delete: deleteTool.handler,
     };
 
     logger.debug({ toolCount: this.allTools.length }, 'Tools initialized');
@@ -116,7 +115,9 @@ class LogseqMcpServer {
         );
 
         // Convert unknown error to StructuredError
-        const structuredError = createStructuredError(ErrorCode.INTERNAL, { error: formatError(error) });
+        const structuredError = createStructuredError(ErrorCode.INTERNAL, {
+          error: formatError(error),
+        });
 
         const errorResponse = createErrorResponse(structuredError);
 
@@ -154,16 +155,26 @@ class LogseqMcpServer {
   async run(): Promise<void> {
     // Test connection on startup
     logger.info('Starting Logseq MCP Server v1.0.0-beta.1...');
-    logger.debug('Testing connection to Logseq...');
 
-    const isConnected = await this.client.testConnection();
-    if (!isConnected) {
-      logger.warn('Could not connect to Logseq. The server will start anyway, but tools may fail.');
+    // Check if API token is provided
+    if (!this.client.apiToken) {
       logger.warn(
-        'Make sure Logseq is running with HTTP API enabled and the correct token is provided.'
+        'No LOGSEQ_API_TOKEN provided. Server will start but tools will require authentication.'
       );
+      logger.warn('Set LOGSEQ_API_TOKEN environment variable to connect to Logseq.');
     } else {
-      logger.info('Successfully connected to Logseq API');
+      logger.debug('Testing connection to Logseq...');
+      const isConnected = await this.client.testConnection();
+      if (!isConnected) {
+        logger.warn(
+          'Could not connect to Logseq. The server will start anyway, but tools may fail.'
+        );
+        logger.warn(
+          'Make sure Logseq is running with HTTP API enabled and the correct token is provided.'
+        );
+      } else {
+        logger.info('Successfully connected to Logseq API');
+      }
     }
 
     const transport = new StdioServerTransport();

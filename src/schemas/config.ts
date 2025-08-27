@@ -18,8 +18,8 @@ export const ConfigSchema = z.object({
    */
   apiToken: z
     .string()
-    .min(1, 'API token is required')
-    .regex(/^[a-zA-Z0-9._-]+$/, 'API token contains invalid characters'),
+    .regex(/^[a-zA-Z0-9._-]*$/, 'API token contains invalid characters')
+    .default(''),
 
   /**
    * Request timeout in milliseconds

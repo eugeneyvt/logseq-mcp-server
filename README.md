@@ -11,7 +11,7 @@ Model Context Protocol (MCP) server that enables AI assistants to seamlessly int
 ## ✨ Features
 
 - 🚀 **Instant AI Integration** - Connect any MCP-compatible AI to your Logseq graph
-- 🔒 **Privacy First** - All operations are local-only, no data leaves your machine  
+- 🔒 **Privacy First** - All operations are local-only, no data leaves your machine
 - 🎯 **4 Intuitive Tools** - Unified Search/Get/Edit/Delete architecture for maximum clarity
 - 🔍 **Advanced Search** - Multi-modal discovery with templates, properties, relations, and date filters
 - 🎨 **Template System** - Single-block template enforcement with proper variable substitution
@@ -29,7 +29,7 @@ Model Context Protocol (MCP) server that enables AI assistants to seamlessly int
 ### One-Command Install
 
 ```bash
-npm install -g logseq-mcp-server-server
+npm install -g logseq-mcp-server
 ```
 
 ## 🚀 Quick Setup (3 Steps)
@@ -70,11 +70,13 @@ npm install -g logseq-mcp-server-server
 #### Method 2: Terminal Command
 
 **macOS/Linux**:
+
 ```bash
 echo '{"mcpServers":{"logseq":{"command":"npx","args":["logseq-mcp-server"],"env":{"LOGSEQ_API_URL":"http://127.0.0.1:12315","LOGSEQ_API_TOKEN":"your-api-token-here"}}}}' > ~/Library/Application\ Support/Claude/claude_desktop_config.json
 ```
 
 **Windows (PowerShell)**:
+
 ```powershell
 '{"mcpServers":{"logseq":{"command":"npx","args":["logseq-mcp-server"],"env":{"LOGSEQ_API_URL":"http://127.0.0.1:12315","LOGSEQ_API_TOKEN":"your-api-token-here"}}}}' | Out-File -FilePath "$env:APPDATA\Claude\claude_desktop_config.json" -Encoding utf8
 ```
@@ -85,6 +87,7 @@ echo '{"mcpServers":{"logseq":{"command":"npx","args":["logseq-mcp-server"],"env
 <summary><b>🤖 Claude Code</b></summary>
 
 #### Method 1: Environment Setup
+
 ```bash
 # Set environment variables and run directly
 export LOGSEQ_API_URL="http://127.0.0.1:12315"
@@ -93,6 +96,7 @@ npx logseq-mcp-server
 ```
 
 #### Method 2: Configuration File
+
 Create or edit your Claude Code MCP configuration:
 
 ```json
@@ -100,7 +104,7 @@ Create or edit your Claude Code MCP configuration:
   "mcpServers": {
     "logseq": {
       "command": "npx",
-    "args": ["logseq-mcp-server"],
+      "args": ["logseq-mcp-server"],
       "env": {
         "LOGSEQ_API_URL": "http://127.0.0.1:12315",
         "LOGSEQ_API_TOKEN": "your-api-token-here"
@@ -116,6 +120,7 @@ Create or edit your Claude Code MCP configuration:
 <summary><b>🔷 VS Code</b></summary>
 
 #### Method 1: Settings UI
+
 1. Open VS Code Settings (Ctrl/Cmd + ,)
 2. Search for "MCP"
 3. Add new server with these settings:
@@ -136,7 +141,7 @@ Create or edit your Claude Code MCP configuration:
       "logseq": {
         "type": "stdio",
         "command": "npx",
-    "args": ["logseq-mcp-server"],
+        "args": ["logseq-mcp-server"],
         "env": {
           "LOGSEQ_API_URL": "http://127.0.0.1:12315",
           "LOGSEQ_API_TOKEN": "your-api-token-here"
@@ -150,6 +155,7 @@ Create or edit your Claude Code MCP configuration:
 #### Method 3: Terminal Command
 
 **macOS**:
+
 ```bash
 # Add to VS Code settings.json
 cat >> ~/Library/Application\ Support/Code/User/settings.json << 'EOF'
@@ -172,6 +178,7 @@ EOF
 ```
 
 **Windows (PowerShell)**:
+
 ```powershell
 # Add to VS Code settings.json
 Add-Content -Path "$env:APPDATA\Code\User\settings.json" -Value @'
@@ -208,7 +215,7 @@ Add-Content -Path "$env:APPDATA\Code\User\settings.json" -Value @'
   "mcpServers": {
     "logseq": {
       "command": "npx",
-    "args": ["logseq-mcp-server"],
+      "args": ["logseq-mcp-server"],
       "env": {
         "LOGSEQ_API_URL": "http://127.0.0.1:12315",
         "LOGSEQ_API_TOKEN": "your-api-token-here"
@@ -221,12 +228,14 @@ Add-Content -Path "$env:APPDATA\Code\User\settings.json" -Value @'
 #### Method 2: Terminal Command
 
 **macOS/Linux**:
+
 ```bash
 mkdir -p ~/.cursor
 echo '{"mcpServers":{"logseq":{"command":"npx","args":["logseq-mcp-server"],"env":{"LOGSEQ_API_URL":"http://127.0.0.1:12315","LOGSEQ_API_TOKEN":"your-api-token-here"}}}}' > ~/.cursor/mcp.json
 ```
 
 **Windows (PowerShell)**:
+
 ```powershell
 New-Item -Path "$env:USERPROFILE\.cursor" -ItemType Directory -Force
 '{"mcpServers":{"logseq":{"command":"npx","args":["logseq-mcp-server"],"env":{"LOGSEQ_API_URL":"http://127.0.0.1:12315","LOGSEQ_API_TOKEN":"your-api-token-here"}}}}' | Out-File -FilePath "$env:USERPROFILE\.cursor\mcp.json" -Encoding utf8
@@ -260,12 +269,14 @@ New-Item -Path "$env:USERPROFILE\.cursor" -ItemType Directory -Force
 #### Method 2: Terminal Command
 
 **macOS**:
+
 ```bash
 mkdir -p ~/Library/Application\ Support/Windsurf
 echo '{"mcpServers":{"logseq":{"command":"npx","args":["logseq-mcp-server"],"env":{"LOGSEQ_API_URL":"http://127.0.0.1:12315","LOGSEQ_API_TOKEN":"your-api-token-here"}}}}' > ~/Library/Application\ Support/Windsurf/mcp.json
 ```
 
 **Windows (PowerShell)**:
+
 ```powershell
 New-Item -Path "$env:APPDATA\Windsurf" -ItemType Directory -Force
 '{"mcpServers":{"logseq":{"command":"npx","args":["logseq-mcp-server"],"env":{"LOGSEQ_API_URL":"http://127.0.0.1:12315","LOGSEQ_API_TOKEN":"your-api-token-here"}}}}' | Out-File -FilePath "$env:APPDATA\Windsurf\mcp.json" -Encoding utf8
@@ -283,7 +294,7 @@ Add to your Continue configuration:
   "mcpServers": {
     "logseq": {
       "command": "npx",
-    "args": ["logseq-mcp-server"],
+      "args": ["logseq-mcp-server"],
       "env": {
         "LOGSEQ_API_URL": "http://127.0.0.1:12315",
         "LOGSEQ_API_TOKEN": "your-api-token-here"
@@ -376,6 +387,7 @@ Raycast AI has been rolling out MCP support. If your build exposes MCP server co
 <summary><b>🤖 Other MCP Clients</b></summary>
 
 #### Method 1: Direct Command
+
 For any MCP-compatible client, run directly:
 
 ```bash
@@ -388,6 +400,7 @@ logseq-mcp-server
 ```
 
 #### Method 2: Standard MCP Configuration
+
 Most MCP clients support this standard format:
 
 ```json
@@ -395,7 +408,7 @@ Most MCP clients support this standard format:
   "mcpServers": {
     "logseq": {
       "command": "npx",
-    "args": ["logseq-mcp-server"],
+      "args": ["logseq-mcp-server"],
       "env": {
         "LOGSEQ_API_URL": "http://127.0.0.1:12315",
         "LOGSEQ_API_TOKEN": "your-api-token-here"
@@ -448,6 +461,7 @@ Create, modify, and organize your knowledge:
 - **Safety**: Dry-run mode, validation, and rollback support; `confirmDestroy: true` required for `operation: "remove"`; `control.maxOps` enforced to prevent large accidental edits
 
 Notes:
+
 - **Properties**: When targeting a page, the operation resolves to the page’s root block UUID. The page must already exist (no implicit creation).
 - **Templates**: Creation enforces the Logseq single-block template standard (single root block with content inserted as children when needed). Template insertion is append-only and requires an existing target page.
 
@@ -492,7 +506,7 @@ Remove content with comprehensive safety controls:
 ### Revolutionary 4-Tool Architecture
 
 - **Simplified AI Selection**: Instead of 15+ confusing micro-tools, choose from 4 clear action verbs
-- **Consistent Interface**: All tools follow the same parameter patterns and response formats  
+- **Consistent Interface**: All tools follow the same parameter patterns and response formats
 - **Type Safety**: Comprehensive validation with helpful error messages
 - **Production Ready**: Built with monitoring, caching, and reliability features
 
@@ -561,12 +575,12 @@ Remove content with comprehensive safety controls:
 
 ### Common Issues
 
-| Problem | Solution |
-|---------|----------|
-| **Connection Refused** | Ensure Logseq is running with HTTP API enabled |
-| **Unauthorized** | Check your API token and regenerate if needed |
-| **Slow Performance** | Increase timeout settings or check network connectivity |
-| **Template Errors** | Ensure templates are single blocks (Logseq requirement) |
+| Problem                | Solution                                                |
+| ---------------------- | ------------------------------------------------------- |
+| **Connection Refused** | Ensure Logseq is running with HTTP API enabled          |
+| **Unauthorized**       | Check your API token and regenerate if needed           |
+| **Slow Performance**   | Increase timeout settings or check network connectivity |
+| **Template Errors**    | Ensure templates are single blocks (Logseq requirement) |
 
 ### Debug Mode
 
