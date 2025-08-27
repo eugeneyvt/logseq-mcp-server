@@ -1,6 +1,6 @@
 # Configuration Guide
 
-This guide provides detailed configuration options for Logseq MCP v1.0.0-beta.1.
+This guide provides detailed configuration options for Logseq MCP v1.0.0-beta.7.
 
 ## Environment Variables
 
@@ -20,10 +20,10 @@ This guide provides detailed configuration options for Logseq MCP v1.0.0-beta.1.
 
 ### Logging Configuration
 
-| Variable    | Description      | Default       | Example                  |
-| ----------- | ---------------- | ------------- | ------------------------ |
+| Variable    | Description      | Default                            | Example                  |
+| ----------- | ---------------- | ---------------------------------- | ------------------------ |
 | `LOG_LEVEL` | Logging level    | `info` (dev), `error` (prod/unset) | `debug`, `warn`, `error` |
-| `NODE_ENV`  | Environment mode | `development` | `production`             |
+| `NODE_ENV`  | Environment mode | `development`                      | `production`             |
 
 ### Security Configuration
 
@@ -35,13 +35,13 @@ This guide provides detailed configuration options for Logseq MCP v1.0.0-beta.1.
 
 ### New v1.0.0 Configuration Options
 
-| Variable                    | Description                              | Default | Example         |
-| --------------------------- | ---------------------------------------- | ------- | --------------- |
-| `LOGSEQ_STRICT_MODE`        | Enable strict format validation          | `true`  | `false`         |
-| `LOGSEQ_AUTOFIX_FORMAT`     | Auto-fix common formatting issues        | `true`  | `false`         |
-| `LOGSEQ_DEFAULT_DRY_RUN`    | Default dry-run behavior                 | `false` | `true`          |
-| `GRAPH_MAP_CACHE_TTL`       | Graph map cache duration (seconds)       | `300`   | `600`           |
-| `PLACEMENT_CONFIDENCE_THRESHOLD` | Minimum confidence for placement suggestions | `0.7` | `0.8`      |
+| Variable                         | Description                                  | Default | Example |
+| -------------------------------- | -------------------------------------------- | ------- | ------- |
+| `LOGSEQ_STRICT_MODE`             | Enable strict format validation              | `true`  | `false` |
+| `LOGSEQ_AUTOFIX_FORMAT`          | Auto-fix common formatting issues            | `true`  | `false` |
+| `LOGSEQ_DEFAULT_DRY_RUN`         | Default dry-run behavior                     | `false` | `true`  |
+| `GRAPH_MAP_CACHE_TTL`            | Graph map cache duration (seconds)           | `300`   | `600`   |
+| `PLACEMENT_CONFIDENCE_THRESHOLD` | Minimum confidence for placement suggestions | `0.7`   | `0.8`   |
 
 ## Key Capabilities in v1.0.0
 

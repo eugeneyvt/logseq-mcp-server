@@ -575,12 +575,29 @@ Remove content with comprehensive safety controls:
 
 ### Common Issues
 
-| Problem                | Solution                                                |
-| ---------------------- | ------------------------------------------------------- |
-| **Connection Refused** | Ensure Logseq is running with HTTP API enabled          |
-| **Unauthorized**       | Check your API token and regenerate if needed           |
-| **Slow Performance**   | Increase timeout settings or check network connectivity |
-| **Template Errors**    | Ensure templates are single blocks (Logseq requirement) |
+| Problem                | Solution                                                     |
+| ---------------------- | ------------------------------------------------------------ |
+| **Connection Refused** | Ensure Logseq is running with HTTP API enabled               |
+| **Unauthorized**       | Check your API token and regenerate if needed                |
+| **Slow Performance**   | Increase timeout settings or check network connectivity      |
+| **Template Errors**    | Ensure templates are single blocks (Logseq requirement)      |
+| **Server Won't Start** | Try `npx -y logseq-mcp-server@latest` to force fresh install |
+| **Cache Issues**       | Use `npx --yes logseq-mcp-server@latest` to bypass cache     |
+
+### Getting the Latest Version
+
+If you're experiencing issues, make sure you're running the latest version:
+
+```bash
+# Force install the latest version (bypasses npm cache)
+npx -y logseq-mcp-server@latest
+
+# Alternative syntax
+npx --yes logseq-mcp-server@latest
+
+# Check current version
+npx logseq-mcp-server --version
+```
 
 ### Debug Mode
 

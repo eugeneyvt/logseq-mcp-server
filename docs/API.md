@@ -1,6 +1,6 @@
 # API Reference
 
-This document provides comprehensive documentation for the **unified 4-tool architecture** in Logseq MCP v1.0.0-beta.1.
+This document provides comprehensive documentation for the **unified 4-tool architecture** in Logseq MCP v1.0.0-beta.7.
 
 The server uses an innovative **4-tool unified architecture** that dramatically simplifies AI tool selection while providing comprehensive Logseq operations:
 
@@ -201,27 +201,32 @@ The Search tool provides advanced multi-modal discovery with sophisticated filte
 ### Advanced Query Types
 
 #### Template Discovery
+
 ```
 "templates:*"                    // List all available templates
 "template:\"Meeting Template\""  // Find specific template
 ```
 
 #### Property-Based Search
+
 ```
 "property:status=open"           // Find pages with specific properties
 "properties:page=\"Project Alpha\"" // Get all properties for a page
 ```
 
 #### Relationship Analysis
+
 ```
 "backlinks:\"Important Topic\""  // Find pages that reference this
 "references:\"Research Topic\""   // Find all references and mentions
 ```
 
 Notes:
+
 - Relation and backlink analysis apply safe internal caps (default limit: 500). When limits are reached, results may be truncated.
 
 #### Date-Based Search
+
 ```
 "date:2024-01-01"               // Specific date
 "date:today"                     // Today's content
@@ -230,6 +235,7 @@ Notes:
 ```
 
 #### Combined Filters
+
 ```
 "property:status=open AND date:last-week"  // Multiple conditions
 "templates:* OR property:type=template"    // OR logic
@@ -293,6 +299,7 @@ The Get tool provides unified content retrieval with full details, context, and 
 ### Supported Type Operations
 
 #### Page Retrieval
+
 **Purpose**: Get page content, properties, backlinks, children, and graph metrics
 
 - `target`: page title
@@ -301,6 +308,7 @@ The Get tool provides unified content retrieval with full details, context, and 
 - Returns comprehensive page metadata with relationship analysis
 
 #### Block Retrieval
+
 **Purpose**: Get block details, children, properties, and context
 
 - `target`: block UUID
@@ -309,6 +317,7 @@ The Get tool provides unified content retrieval with full details, context, and 
 - Returns block content with hierarchical information
 
 #### Template Retrieval
+
 **Purpose**: Get template definition, placeholders, and usage examples
 
 - `target`: template name
@@ -316,6 +325,7 @@ The Get tool provides unified content retrieval with full details, context, and 
 - Returns template structure with validation information
 
 #### Properties Retrieval
+
 **Purpose**: Get page/block properties with metadata
 
 - `target`: page title or block UUID
@@ -323,6 +333,7 @@ The Get tool provides unified content retrieval with full details, context, and 
 - Provides property schema and validation information
 
 #### Relations Retrieval
+
 **Purpose**: Get page relationships and graph connections
 
 - `target`: page title
@@ -330,6 +341,7 @@ The Get tool provides unified content retrieval with full details, context, and 
 - Returns backlinks, outgoing links, related pages with relevance scores
 
 #### Tasks Retrieval
+
 **Purpose**: Get task details, state, scheduling information
 
 - `target`: block UUID or page title
@@ -337,6 +349,7 @@ The Get tool provides unified content retrieval with full details, context, and 
 - Provides task lifecycle and status information
 
 #### System Retrieval
+
 **Purpose**: Get system information and health status
 
 - No target required
@@ -344,6 +357,7 @@ The Get tool provides unified content retrieval with full details, context, and 
 - Provides server health and configuration information
 
 #### Graph Retrieval
+
 **Purpose**: Get graph structure and analytics
 
 - `target`: optional focus page
@@ -430,12 +444,14 @@ The Edit tool enables content creation, modification, and movement across all Lo
 ### Valid Type + Operation Combinations
 
 #### Page Operations
+
 - **create**: Create new page with initial content
 - **update**: Replace entire page content
 - **append**: Add content to end of page
 - **prepend**: Add content to beginning of page
 
 #### Block Operations
+
 - **create**: Create new block at specified position
 - **update**: Update existing block content
 - **move**: Move block to new position
@@ -443,23 +459,27 @@ The Edit tool enables content creation, modification, and movement across all Lo
 - **prepend**: Add block before others
 
 #### Template Operations (Single-Block Enforced)
+
 - **create**: Create new single-block template (enforced)
 - **update**: Update template definition
 - **append**: Insert template into target location
 
 #### Properties Operations
+
 - **create**: Add new property (alias for update)
 - **update**: Set/update property value
 - **remove**: Remove property (via operation="remove")
   - Note: When targeting a page, the operation resolves the page’s root block UUID; the page must already exist.
 
 #### Relations Operations
+
 - **create**: Create link between pages
 - **remove**: Remove link between pages
 - **update**: Update link context/metadata
   - Notes: Source resolves to a block UUID for content updates; visible links are de-duplicated and context is sanitized.
 
 #### Tasks Operations
+
 - **create**: Create new task block
 - **update**: Update task content or state
 - **move**: Move task to different location
@@ -467,18 +487,21 @@ The Edit tool enables content creation, modification, and movement across all Lo
 ### Template System Features
 
 #### Single-Block Rule Enforcement
+
 - Templates MUST be created as single blocks only
 - Multi-line content joined with newlines within single block
 - Validation rejects multi-block templates with clear error
 - Template insertion always creates single block
 
 #### Template Creation Process
+
 1. Validate content is single block
 2. Create template page with proper properties
 3. Add template block with normalized placeholders
 4. Return template info with placeholder analysis
 
 #### Template Insertion Process
+
 1. Find template by name
 2. Substitute variables in content
 3. Insert as single block at target position
@@ -541,31 +564,37 @@ The Delete tool provides safe content removal with comprehensive safety controls
 ### Supported Deletion Types
 
 #### Page Deletion
+
 - Warns about orphaned backlinks
 - Option to cascade delete or just remove references
 - Shows child block count before deletion
 
 #### Block Deletion
+
 - Shows child block count before deletion
 - Option to preserve or delete child blocks
 - Updates parent references automatically
 
 #### Template Deletion
+
 - Shows usage count if template is referenced
 - Prevents deletion of widely-used templates without confirmation
 - Validates template dependencies
 
 #### Properties Deletion
+
 - Shows current property values before deletion
 - Batch deletion support
 - Preserves property history
 
 #### Relations Deletion
+
 - Shows impact on graph connectivity
 - Option to delete bidirectional links
 - Updates relationship metrics
 
 #### Tasks Deletion
+
 - Preserves task history in deletion log
 - Shows task state and dependencies before deletion
 - Updates task references
@@ -573,16 +602,19 @@ The Delete tool provides safe content removal with comprehensive safety controls
 ### Safety Features
 
 #### Pre-deletion Analysis
+
 - Impact assessment (what else will be affected)
 - Dependency warnings (orphaned content)
 - Usage statistics (how often referenced)
 
 #### Confirmation Requirements
+
 - `confirmDestroy: true` required for all deletions
 - Additional confirmation for high-impact deletions
 - Simulation mode to preview deletions
 
 #### Soft Delete Option
+
 - Move to designated trash page instead of permanent deletion
 - Preserve content with deletion metadata
 - Recovery option for accidental deletions

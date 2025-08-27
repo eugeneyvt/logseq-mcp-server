@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.0.0-beta.7 - 2025-08-27
+
+### Fixes
+
+- Simplified module execution guard - removed complex filename matching, now always runs main() for CLI entry
+- Further optimized startup flow for maximum compatibility with npx environments
+- Enhanced process lifecycle management for reliable operation
+
+## 1.0.0-beta.6 - 2025-08-27
+
+### Fixes
+
+- Added missing MCP initialization handler to prevent early server exit
+- Server now properly responds to initialize requests from Claude Desktop
+- Fixed transport closing issue after initialization - all MCP protocol flows work correctly
+
+## 1.0.0-beta.5 - 2025-08-27
+
+### Fixes
+
+- Keep process alive after MCP connect to prevent premature stdio close when launched via `npx`, which caused Claude Code to report "Server transport closed". The server now resumes `stdin` and waits for stream end or `SIGINT`/`SIGTERM`.
+- Initialize: echo client `protocolVersion` when provided for better compatibility.
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
@@ -14,7 +37,7 @@ First public beta release of the Logseq MCP server with unified 4-tool architect
 #### **✨ Features**
 
 - **4-Tool Unified Architecture**: Search, Get, Edit, Delete tools for intuitive AI interaction
-- **Advanced Search**: Multi-modal discovery with templates, properties, relations, date filters  
+- **Advanced Search**: Multi-modal discovery with templates, properties, relations, date filters
 - **Template System**: Single-block enforcement with variable substitution
 - **Enterprise Safety**: Idempotency controls, dry-run mode, confirmation prompts
 - **Production Ready**: Caching, monitoring, security, error handling
@@ -30,7 +53,7 @@ First public beta release of the Logseq MCP server with unified 4-tool architect
 #### **📊 Performance**
 
 - **Intelligent Caching**: 3-5 minute TTL for different content types
-- **Connection Pooling**: Efficient HTTP request management  
+- **Connection Pooling**: Efficient HTTP request management
 - **Cursor-Based Pagination**: Handle large result sets (up to 100 items)
 - **Automatic Retry**: Exponential backoff for reliability
 
@@ -61,6 +84,7 @@ This is a **breaking change** that completely redesigns the Logseq MCP Server to
 #### **✨ New 4-Tool Architecture**
 
 ##### **🔍 Search Tool** - Advanced Discovery
+
 - Multi-modal search across pages, blocks, templates, tasks, and properties
 - Sophisticated filtering: `property:status=open AND date:last-week`
 - Template discovery: `templates:*`, `template:"Meeting Template"`
@@ -70,6 +94,7 @@ This is a **breaking change** that completely redesigns the Logseq MCP Server to
 - Cursor-based pagination (100 items max per request)
 
 ##### **📖 Get Tool** - Unified Content Retrieval
+
 - Retrieve pages, blocks, templates, properties, relations, tasks, system info, graph data
 - Include options: children, properties, backlinks, outgoing links, content previews
 - Format control: tree vs flat representation for hierarchical content
@@ -77,6 +102,7 @@ This is a **breaking change** that completely redesigns the Logseq MCP Server to
 - Comprehensive metadata with graph metrics and relationship analysis
 
 ##### **✏️ Edit Tool** - Content Creation & Modification
+
 - Create, update, append, prepend, move content across all Logseq types
 - Type+operation validation with helpful error messages
 - Template single-block enforcement (major template system fix)
@@ -85,6 +111,7 @@ This is a **breaking change** that completely redesigns the Logseq MCP Server to
 - Dry-run mode and idempotency keys for safe operations
 
 ##### **🗑️ Delete Tool** - Safe Content Removal
+
 - Comprehensive safety controls with `confirmDestroy: true` requirement
 - Impact analysis showing dependencies and orphaned references
 - Cascade deletion with dependency tracking
@@ -94,6 +121,7 @@ This is a **breaking change** that completely redesigns the Logseq MCP Server to
 #### **🎯 Key Improvements**
 
 ##### **AI Model Experience**
+
 - **75% reduction in tool selection complexity** (15+ tools → 4 tools)
 - **Clear action verbs** instead of confusing method names
 - **Obvious tool selection**: "I want to create something" → Edit tool
@@ -101,6 +129,7 @@ This is a **breaking change** that completely redesigns the Logseq MCP Server to
 - **Consistent parameter patterns** across all operations
 
 ##### **Template System Reliability**
+
 - **Single-block templates** (Logseq standard compliance)
 - **Proper template insertion** as blocks, not page replacement
 - **Clear creation vs insertion** distinction
@@ -108,6 +137,7 @@ This is a **breaking change** that completely redesigns the Logseq MCP Server to
 - **Variable substitution** with validation
 
 ##### **Developer Experience**
+
 - **Consistent patterns** across all operations
 - **Extensible design** - easy to add new content types
 - **Type safety** with comprehensive validation

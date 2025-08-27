@@ -1,5 +1,4 @@
 import 'dotenv/config';
-import { fileURLToPath } from 'url';
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
@@ -40,7 +39,7 @@ class LogseqMcpServer {
     this.server = new Server(
       {
         name: 'logseq-mcp',
-        version: '1.0.0-beta.4',
+        version: '1.0.0-beta.7',
       },
       {
         capabilities: {
@@ -90,13 +89,14 @@ class LogseqMcpServer {
       });
 
       return {
-        protocolVersion: '2024-11-05',
+        // Echo the client protocol version if provided; fall back to our supported version
+        protocolVersion: request.params.protocolVersion || '2024-11-05',
         capabilities: {
           tools: {},
         },
         serverInfo: {
           name: 'logseq-mcp',
-          version: '1.0.0-beta.4',
+          version: '1.0.0-beta.7',
         },
       };
     });
@@ -175,33 +175,52 @@ class LogseqMcpServer {
    * Note: All logs go to stderr to keep stdout clean for JSON-RPC protocol
    */
   async run(): Promise<void> {
-    // Test connection on startup
-    logger.info('Starting Logseq MCP Server v1.0.0-beta.4...');
-
-    // Check if API token is provided
-    if (!this.client.apiToken) {
-      logger.warn(
-        'No LOGSEQ_API_TOKEN provided. Server will start but tools will require authentication.'
-      );
-      logger.warn('Set LOGSEQ_API_TOKEN environment variable to connect to Logseq.');
-    } else {
-      logger.debug('Testing connection to Logseq...');
-      const isConnected = await this.client.testConnection();
-      if (!isConnected) {
-        logger.warn(
-          'Could not connect to Logseq. The server will start anyway, but tools may fail.'
-        );
-        logger.warn(
-          'Make sure Logseq is running with HTTP API enabled and the correct token is provided.'
-        );
-      } else {
-        logger.info('Successfully connected to Logseq API');
-      }
-    }
-
+    // Start fast: connect transport first so clients can initialize immediately
+    logger.info('Starting Logseq MCP Server v1.0.0-beta.7...');
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
     logger.info('Logseq MCP Server is running and ready');
+
+    // Non-blocking connectivity check after connect
+    // Do not await; we want to be responsive to the client's initialize call
+    (async () => {
+      if (!this.client.apiToken) {
+        logger.warn(
+          'No LOGSEQ_API_TOKEN provided. Server will start but tools will require authentication.'
+        );
+        logger.warn('Set LOGSEQ_API_TOKEN environment variable to connect to Logseq.');
+        return;
+      }
+      logger.debug('Testing connection to Logseq...');
+      try {
+        const isConnected = await this.client.testConnection();
+        if (!isConnected) {
+          logger.warn(
+            'Could not connect to Logseq. The server will start anyway, but tools may fail.'
+          );
+          logger.warn(
+            'Make sure Logseq is running with HTTP API enabled and the correct token is provided.'
+          );
+        } else {
+          logger.info('Successfully connected to Logseq API');
+        }
+      } catch (err) {
+        logger.warn({ err }, 'Logseq connectivity check failed');
+      }
+    })().catch(() => {
+      /* already logged */
+    });
+
+    // Keep the process alive until the stdio stream closes or we receive a signal.
+    // Some environments (including npx shims) won’t keep the event loop alive
+    // automatically after connect(). This ensures Claude/clients can talk to us.
+    process.stdin.resume();
+    await new Promise<void>((resolve) => {
+      const handleExit = () => resolve();
+      process.stdin.on('end', handleExit);
+      process.on('SIGINT', handleExit);
+      process.on('SIGTERM', handleExit);
+    });
   }
 }
 
@@ -244,13 +263,8 @@ async function main(): Promise<void> {
   }
 }
 
-// Only run if this file is executed directly
-const __filename = fileURLToPath(import.meta.url);
-const isMainModule = process.argv[1] === __filename || process.argv[1]?.endsWith('index.js');
-
-if (isMainModule) {
-  main().catch((error) => {
-    logger.fatal({ error: sanitizeErrorForLogging(error) }, 'Server crashed');
-    process.exit(1);
-  });
-}
+// Always run for CLI entry (npx/bin symlink safe)
+main().catch((error) => {
+  logger.fatal({ error: sanitizeErrorForLogging(error) }, 'Server crashed');
+  process.exit(1);
+});
